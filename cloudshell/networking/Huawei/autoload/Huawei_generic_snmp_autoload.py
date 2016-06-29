@@ -1,17 +1,12 @@
 import re
-
 import inject
-
-
 from cloudshell.shell.core.driver_context import AutoLoadDetails
-
-from cloudshell.networking.autoload.networking_autoload_resource_structure import Port, PortChannel, PowerPort, \
-    Chassis, Module
 from cloudshell.networking.autoload.networking_autoload_resource_attributes import NetworkingStandardRootAttributes
 from cloudshell.networking.Huawei.autoload.mib_attributes import MibAttributes
 
 
 class HuaweiGenericSNMPAutoload(MibAttributes):
+
     def __init__(self, snmp_handler=None, logger=None, supported_os=None):
         """Basic init with Huawei router mib attribuites handler and logger
 
@@ -22,9 +17,7 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
 
         MibAttributes.__init__(self, snmp_handler, logger, supported_os)
         self._logger = logger
-
         self._excluded_models = []
-
         self.supported_os = supported_os
 
 
@@ -49,10 +42,12 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         self.logger.info('*'*10)
         self.logger.info('Starting Huawei SNMP discovery process')
 
+        self._load_snmp_objects_and_tables()
         self.load_huawei_mib()
+
         self._get_device_details()
 
-        self._load_snmp_objects_and_tables()
+
 
         if len(self.chassis_list) < 1:
             self.logger.error('Entity table error, no chassis found')

@@ -5,6 +5,7 @@ from cloudshell.networking.operations.interfaces.autoload_operations_interface i
 import inject
 import os,re
 
+
 class MibAttributes(AutoloadOperationsInterface):
 
 
@@ -34,7 +35,8 @@ class MibAttributes(AutoloadOperationsInterface):
         self.snmp_object_id = self.snmp.get_property('SNMPv2-MIB', 'sysObjectID', 0)
         self.if_descr = self.snmp.get_table('IF-MIB', 'ifDescr')
 
-
+        self.lldp_loc_port_desc,self.lldp_rem_table,self.dot3_stats_index,self.ip_v4_table,self.ip_v6_entry ,\
+        self.port_channel_ports ,self.sys_location ,self.sys_contact ,self.physical_parent_rel_pos = ['']*9
 
 
     @property
@@ -64,11 +66,7 @@ class MibAttributes(AutoloadOperationsInterface):
 
         self.logger.info('Start loading MIB objects: ')
 
-        self.logger.info('IfDescr object loaded')
-        self.entity_mib_table = self._get_entity_table()
-        if len(self.entity_mib_table.keys()) < 1:
-            raise Exception('Cannot load entPhysicalTable. Autoload cannot continue')
-        self.logger.info('Entity table loaded')
+
 
         self.lldp_loc_port_desc = self.snmp.get_table('LLDP-MIB', 'lldpLocPortDesc')
         self.lldp_rem_table = self.snmp.get_table('LLDP-MIB', 'lldpRemTable')
@@ -79,8 +77,13 @@ class MibAttributes(AutoloadOperationsInterface):
 
         self.sys_location = self.snmp.get_property('SNMPv2-MIB', 'sysLocation', 0)
         self.sys_contact = self.snmp.get_property('SNMPv2-MIB', 'sysContact', 0)
+        self.physical_parent_rel_pos = self.snmp.get_table('ENTITY-MIB', 'entPhysicalParentRelPos')
 
-
+        self.logger.info('IfDescr object loaded')
+        self.entity_mib_table = self._get_entity_table()
+        if len(self.entity_mib_table.keys()) < 1:
+            raise Exception('Cannot load entPhysicalTable. Autoload cannot continue')
+        self.logger.info('Entity table loaded')
 
         self.logger.info('MIB Tables loaded successfully')
 
@@ -143,21 +146,15 @@ class MibAttributes(AutoloadOperationsInterface):
             result = self.entity_mib_table[item_id]['entPhysicalParentRelPos']
         return result
 
-
-
-
-
-
-
     def _get_port_channels(self):
         """Get all port channels and set attributes for them
 
         :return:
         """
 
-        if not self.if_table:
+        if not self.if_descr:
             return
-        port_channel_dic = {index: port for index, port in self.if_table.iteritems() if
+        port_channel_dic = {index: port for index, port in self.if_descr.iteritems() if
                             'channel' in port['ifDescr'] and '.' not in port['ifDescr']}
         self.logger.info('Start loading Port Channels')
         for key, value in port_channel_dic.iteritems():
@@ -202,8 +199,8 @@ class MibAttributes(AutoloadOperationsInterface):
                 if 'ipAdEntIfIndex' in value and int(value['ipAdEntIfIndex']) == port_index:
                     interface_details['IPv4 Address'] = key
                 break
-        if self.ip_v6_table and len(self.ip_v6_table) > 1:
-            for key, value in self.ip_v6_table.iteritems():
+        if self.ip_v6_entry and len(self.ip_v6_entry) > 1:
+            for key, value in self.ip_v6_entry.iteritems():
                 if 'ipAdEntIfIndex' in value and int(value['ipAdEntIfIndex']) == port_index:
                     interface_details['IPv6 Address'] = key
                 break
@@ -223,7 +220,7 @@ class MibAttributes(AutoloadOperationsInterface):
                 interface_details['auto_negotiation'] = 'True'
         except Exception as e:
             self.logger.error('Failed to load auto negotiation property for interface {0}'.format(e.message))
-        for key, value in self.duplex_table.iteritems():
+        for key, value in self.dot3_stats_index.iteritems():
             if 'dot3StatsIndex' in value.keys() and value['dot3StatsIndex'] == str(port_index):
                 interface_duplex = self.get_interface_duplex(key)
                 if 'halfDuplex' in interface_duplex:
@@ -270,7 +267,7 @@ class MibAttributes(AutoloadOperationsInterface):
                                            'entPhysicalVendorType': 'str'}
         entity_table_optional_port_attr = {'entPhysicalDescr': 'str', 'entPhysicalName': 'str'}
 
-        physical_indexes = self.snmp.get_table('ENTITY-MIB', 'entPhysicalParentRelPos')
+        physical_indexes = self.physical_parent_rel_pos
         for index in physical_indexes.keys():
             is_excluded = False
             if physical_indexes[index]['entPhysicalParentRelPos'] == '':
@@ -365,7 +362,8 @@ class MibAttributes(AutoloadOperationsInterface):
         self.logger.info('Finished Loading Ports')
 
     def get_ent_alias_mapping_identifier(self,port_index):
-        return  self.snmp.get(('ENTITY-MIB', 'entAliasMappingIdentifier', port_index, 0))
+        res = self.snmp.get(('ENTITY-MIB', 'entAliasMappingIdentifier', port_index, 1))
+        return  res
 
 
     def _get_power_ports(self):
