@@ -42,11 +42,10 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         self.logger.info('*'*10)
         self.logger.info('Starting Huawei SNMP discovery process')
 
-        self._load_snmp_objects_and_tables()
         self.load_huawei_mib()
-
         self._get_device_details()
-
+        self.snmp.load_mib(['HUAWEI-PORT-MIB'])
+        self._load_snmp_objects_and_tables()
 
 
         if len(self.chassis_list) < 1:

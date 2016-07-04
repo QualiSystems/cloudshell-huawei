@@ -23,12 +23,13 @@ class MibAttributes(AutoloadOperationsInterface):
 
 
         self.entity_mib_table_black_list = ['alarm', 'fan', 'sensor']
-        self.port_exclude_pattern = 'serial|stack|engine|management'
+        self.port_exclude_pattern = 'serial|stack|engine|management|MEth'
         self.module_exclude_pattern = 'cevsfp'
         self.resources = list()
         self.attributes = list()
 
         self.vendor = 'Huawei'
+
 
         self.sys_descr = self.snmp.get(('SNMPv2-MIB', 'sysDescr'))['sysDescr']
         self.sys_name = self.snmp.get_property('SNMPv2-MIB', 'sysName', 0)
@@ -94,8 +95,9 @@ class MibAttributes(AutoloadOperationsInterface):
         return self.snmp.get_property('ENTITY-MIB', 'entPhysicalSerialNum', key)
 
     def get_interface_duplex(self,key):
-       return self.snmp.get_property('EtherLike-MIB', 'dot3StatsDuplexStatus', key)
-
+       #return self.snmp.get_property('EtherLike-MIB', 'dot3StatsDuplexStatus', key)
+       res =  self.snmp.get_property('HUAWEI-PORT-MIB', 'hwEthernetDuplex', key)
+       return res
 
     def get_physical_software_rev(self,key):
         return self.snmp.get_property('ENTITY-MIB', 'entPhysicalSoftwareRev', key)
