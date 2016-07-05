@@ -20,8 +20,6 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         self._excluded_models = []
         self.supported_os = supported_os
 
-
-
     @property
     def logger(self):
         if self._logger is None:
@@ -70,7 +68,7 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
 
         result = AutoLoadDetails(resources=self.resources, attributes=self.attributes)
 
-        self.logger.info('*******************************************')
+        self.logger.info('*'*10)
         self.logger.info('Discover completed. The following Structure have been loaded:' +
                           '\nModel, Name, Relative Path, Uniqe Id')
 
@@ -82,7 +80,7 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
             self.logger.info('{0},\t\t{1},\t\t{2}'.format(attribute.relative_address, attribute.attribute_name,
                                                            attribute.attribute_value))
 
-        self.logger.info('*******************************************')
+        self.logger.info('*'*10)
         self.logger.info('SNMP discovery Completed')
         return result
 

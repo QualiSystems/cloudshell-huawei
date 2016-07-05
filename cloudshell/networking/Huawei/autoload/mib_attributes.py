@@ -34,7 +34,7 @@ class MibAttributes(AutoloadOperationsInterface):
         self.sys_descr = self.snmp.get(('SNMPv2-MIB', 'sysDescr'))['sysDescr']
         self.sys_name = self.snmp.get_property('SNMPv2-MIB', 'sysName', 0)
         self.snmp_object_id = self.snmp.get_property('SNMPv2-MIB', 'sysObjectID', 0)
-        self.if_descr = self.snmp.get_table('IF-MIB', 'ifDescr')
+        self.if_descr = self.snmp.get_table('IF-MIB', 'ifDescr') #ifDescr
 
         self.lldp_loc_port_desc,self.lldp_rem_table,self.dot3_stats_index,self.ip_v4_table,self.ip_v6_entry ,\
         self.port_channel_ports ,self.sys_location ,self.sys_contact ,self.physical_parent_rel_pos = ['']*9
@@ -69,16 +69,16 @@ class MibAttributes(AutoloadOperationsInterface):
 
 
 
-        self.lldp_loc_port_desc = self.snmp.get_table('LLDP-MIB', 'lldpLocPortDesc')
+        self.lldp_loc_port_desc = self.snmp.get_table('LLDP-MIB', 'lldpLocPortTable') #lldpLocPortDesc
         self.lldp_rem_table = self.snmp.get_table('LLDP-MIB', 'lldpRemTable')
-        self.dot3_stats_index = self.snmp.get_table('EtherLike-MIB', 'dot3StatsIndex')
-        self.ip_v4_table = self.snmp.get_table('IP-MIB','ipAddrTable') #  'ipAddressAddr'
-        self.ip_v6_entry = self.snmp.get_table('IPV6-MIB', 'ipv6AddrEntry')  #  'ipv6IfDescr'
+        self.dot3_stats_index = self.snmp.get_table('EtherLike-MIB', 'dot3StatsIndex') #dot3StatsIndex
+        self.ip_v4_table = self.snmp.get_table('RFC1213-MIB','ipAddrTable') #  'ipAddressAddr'
+        self.ip_v6_entry = self.snmp.get_table('IPV6-MIB', 'ipv6AddrTable')  #  'ipv6IfDescr' ''ipv6AddrEntry'
         self.port_channel_ports = self.snmp.get_table('IEEE8023-LAG-MIB', 'dot3adAggPortAttachedAggID')
 
         self.sys_location = self.snmp.get_property('SNMPv2-MIB', 'sysLocation', 0)
         self.sys_contact = self.snmp.get_property('SNMPv2-MIB', 'sysContact', 0)
-        self.physical_parent_rel_pos = self.snmp.get_table('ENTITY-MIB', 'entPhysicalParentRelPos')
+        self.physical_parent_rel_pos = self.snmp.get_table('ENTITY-MIB', 'entPhysicalParentRelPos') #entPhysicalParentRelPos
 
         self.logger.info('IfDescr object loaded')
         self.entity_mib_table = self._get_entity_table()
@@ -95,7 +95,7 @@ class MibAttributes(AutoloadOperationsInterface):
         return self.snmp.get_property('ENTITY-MIB', 'entPhysicalSerialNum', key)
 
     def get_interface_duplex(self,key):
-       #return self.snmp.get_property('EtherLike-MIB', 'dot3StatsDuplexStatus', key)
+
        res =  self.snmp.get_property('HUAWEI-PORT-MIB', 'hwEthernetDuplex', key)
        return res
 
