@@ -34,7 +34,7 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
 
         :return: AutoLoadDetails object
         """
-
+#
         self._is_valid_device_os()
 
         self.logger.info('*'*10)
