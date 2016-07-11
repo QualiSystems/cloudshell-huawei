@@ -19,13 +19,16 @@ VLAN_COMMANDS_TEMPLATES = {
     'allow_trunk_vlan': CommandTemplate('port trunk allow-pass vlan {0}', validateVlanRange,
                                         'Wrong allowed vlan id!'),
     'description': CommandTemplate('description'),
-    'mode trunk': CommandTemplate('port link-type trunk'),
     'preempt': CommandTemplate('preempt'),
-    'access vlan': CommandTemplate('port link-type access'),
     'shutdown': CommandTemplate('shutdown'),
     'priority': CommandTemplate('priority {0}', ['[0-9]+'], ['Wrong priority number!']),
     'no trunk': CommandTemplate('undo port trunk allow-pass vlan {0}'),
     'track': CommandTemplate('track {0} decrement {1}', [r'[0-9]+', r'[0-9]+'],
-                             ['Wrong track number!', 'Wrong track decrement number!'])
+                             ['Wrong track number!', 'Wrong track decrement number!']),
+    'port_mode_trunk': CommandTemplate('port link-type trunk'),
+    'port_mode_access': CommandTemplate('port link-type access'),
+     'qnq': CommandTemplate('port link-type dot1q-tunnel'),
+    'port_default_vlan' : CommandTemplate('port default vlan {0}',validateVlanRange, 'Cannot create vlan - wrong vlan number(s)'),
+    'speed' : CommandTemplate('speed {0}', r'[0-9]+', 'Wrong speed number!')
 }
 
