@@ -8,7 +8,7 @@ import os,re
 
 class MibAttributes(AutoloadOperationsInterface):
 
-
+#
     def __init__(self, snmp_handler=None, logger=None, supported_os=None):
         self._snmp = snmp_handler
 
