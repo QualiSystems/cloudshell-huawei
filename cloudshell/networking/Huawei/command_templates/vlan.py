@@ -5,8 +5,7 @@ from cloudshell.networking.networking_utils import validateIP, validateVlanRange
 
 
 VLAN_COMMANDS_TEMPLATES = {
-    'configure_interface': CommandTemplate('interface {0} {1}', [r'[\w-]+\s*[0-9/]+',r'[\w-]+\s*[0-9/]+'],
-                                           ['Interface name is incorrect!','Interface value is incorrect!']),
+    'configure_interface': CommandTemplate('interface {0}',r'\w|0-9','Wrong interface name!'),
     'ip_address': CommandTemplate('ip address {0} {1}', [validateIP, validateIP],
                                   ['Wrong ip address!', 'Wrong ip mask!']),
     'configure_vlan': CommandTemplate('vlan {0}', validateVlanRange, 'Cannot create vlan - wrong vlan number(s)'),
@@ -15,7 +14,7 @@ VLAN_COMMANDS_TEMPLATES = {
                             ['Wrong router protocol id!']),
     'authentication': CommandTemplate('authentication {0}', [r'\w+'],
                                       ['Wrong authentication name!']),
-    'undo_shutdown': CommandTemplate('undo shutdown'),
+    'undo shutdown': CommandTemplate('undo shutdown'),
     'allow_trunk_vlan': CommandTemplate('port trunk allow-pass vlan {0}', validateVlanRange,
                                         'Wrong allowed vlan id!'),
     'description': CommandTemplate('description'),
