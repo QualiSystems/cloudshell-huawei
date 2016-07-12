@@ -64,16 +64,20 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
 
         :param port_resource_address: port resource address
         :param resource_details_map: full device resource structure
-        :return: full port resource name (Huawei37/Chassis 0/FastEthernet0-23)
+        :return: full port resource name ('Huawei37/Chassis 1/Module 0/GigabitEthernet0-0-10')
         :rtype: string
         """
 
         result = None
-        for port in resource_details_map.ChildResources:
+        if len(resource_details_map.ChildResources )>0: #chasis
+            module_ports = resource_details_map.ChildResources[0].ChildResources
+            if(len(module_ports)>0): #module
+                ports_map = module_ports[0]
+
+        for port in ports_map.ChildResources:
             if port.FullAddress in port_resource_address and port.FullAddress == port_resource_address:
                 return port.Name
-            if port.FullAddress in port_resource_address and port.FullAddress != port_resource_address:
-                result = self._get_resource_full_name(port_resource_address, port)
+
             if result is not None:
                 return result
         return result
@@ -147,7 +151,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
             interface_config_actions['port_default_vlan'] = [vlan_range]
 
         self.configure_vlan_on_interface(interface_config_actions)
-        result = self.cli.send_command('show running-config interface {0}'.format(port_name))
+        result = self.cli.send_command('display current-configuration interface {0}'.format(port_name))
         self.logger.info('Vlan configuration completed: \n{0}'.format(result))
 
         return 'Vlan Configuration Completed'
@@ -223,14 +227,14 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         commands_list = get_commands_list(commands_dict)
 
         current_config = self.cli.send_command(
-            'show running-config interface {0}'.format(commands_dict['configure_interface']))
+            'display current-configuration interface {0}'.format(commands_dict['configure_interface']))
 
         for line in current_config.splitlines():
-            if re.search('^\s*switchport\s+', line):
+            if re.search('^\s*port link-type\s+', line):
                 line_to_remove = re.sub('\s+\d+[-\d+,]+', '', line)
                 if not line_to_remove:
                     line_to_remove = line
-                commands_list.insert(1, 'no {0}'.format(line_to_remove.strip(' ')))
+                commands_list.insert(1, 'undo {0}'.format(line_to_remove.strip(' ')))
 
         expected_map = {'[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
                         '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
