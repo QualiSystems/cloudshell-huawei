@@ -230,7 +230,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
             'display current-configuration interface {0}'.format(commands_dict['configure_interface']))
 
         for line in current_config.splitlines():
-            if re.search('^\s*port link-type\s+', line):
+            if re.search('^\s*port default vlan\s+|^\s*port link-type\s+|^\s*port trunk allow-pass vlan\s+', line):
                 line_to_remove = re.sub('\s+\d+[-\d+,]+', '', line)
                 if not line_to_remove:
                     line_to_remove = line
