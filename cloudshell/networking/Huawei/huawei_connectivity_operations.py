@@ -231,12 +231,13 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
 
         for line in current_config.splitlines():
             if re.search('^\s*port default vlan\s+|^\s*port link-type\s+|^\s*port trunk allow-pass vlan\s+', line):
-                line_to_remove = re.sub('\s+\d+[-\d+,]+', '', line)
+                if(not re.search('^\s*port trunk allow-pass vlan\s+', line)):
+                    line_to_remove = re.sub('\s+\d+[-\d+,]+|trunk|access', '', line)
                 if not line_to_remove:
                     line_to_remove = line
                 commands_list.insert(1, 'undo {0}'.format(line_to_remove.strip(' ')))
 
-        expected_map = {'[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
+        expected_map = {'[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]': lambda session: session.send_line('yes'),
                         '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
         output = self.send_config_command_list(commands_list, expected_map=expected_map)
 
