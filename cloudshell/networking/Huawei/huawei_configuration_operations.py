@@ -15,6 +15,7 @@ from cloudshell.shell.core.context_utils import get_resource_name
 def _get_time_stamp():
     return time.strftime("%d%m%y-%H%M%S", time.localtime())
 
+
 # def _is_valid_copy_filesystem(filesystem):
 #     return not re.match('bootflash$|tftp$|ftp$|harddisk$|nvram$|pram$|flash$|localhost$', filesystem) is None
 
@@ -56,7 +57,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                 raise Exception('Huawei', 'Cli Service is none or empty')
         return self._cli
 
-    def upload_to_remote_server(self, destination_file, configuration_type,vrf, timeout=600, retries=5):
+    def upload_to_remote_server(self, destination_file, configuration_type, vrf, timeout=600, retries=5):
         """Copy file from device to tftp or vice versa, as well as copying inside devices filesystem
         :param source_file: source file.
         :param destination_file: destination file.
@@ -80,19 +81,22 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             command = 'display startup'
             response = self.cli.send_command(command=command)
             splitted_response = response.split("\n  ")
-            if (len(splitted_response) <= 0): raise Exception('Huawei', 'Upload to remote server method: no source file for startup!')
+            if (len(splitted_response) <= 0): raise Exception('Huawei',
+                                                              'Upload to remote server method: no source file for startup!')
 
             source_file_type = splitted_response[5].split("     ")
-            if(len(source_file_type) <=0): raise Exception('Huawei', 'Upload to remote server method: no source file for startup!')
+            if (len(source_file_type) <= 0): raise Exception('Huawei',
+                                                             'Upload to remote server method: no source file for startup!')
 
-            if("Next startup saved-configuration file:" in source_file_type[0]): source_file = source_file_type[1]
-            else: raise Exception('Huawei', 'Upload to remote server method: no source file for startup!')
+            if ("Next startup saved-configuration file:" in source_file_type[0]):
+                source_file = source_file_type[1]
+            else:
+                raise Exception('Huawei', 'Upload to remote server method: no source file for startup!')
 
         if (configuration_type == 'running'):
             source_file = './vrpcfg.zip'
 
-
-        tftp_command_str = 'tftp -a {0} tftp-server put {1} {2}'.format(host, source_file,filename)
+        tftp_command_str = 'tftp -a {0} tftp-server put {1} {2}'.format(host, source_file, filename)
         if vrf:
             tftp_command_str += ' vrf {0}'.format(vrf)
 
@@ -108,8 +112,8 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         return self._check_download_from_tftp(output)
 
-
-    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type,vrf, timeout=600, retries=5):
+    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type, vrf, timeout=600,
+                                                     retries=5):
 
         """Copy file from device to tftp or vice versa, as well as copying inside devices filesystem
         :param source_file: source file.
@@ -123,21 +127,26 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             command = 'display startup'
             response = self.cli.send_command(command=command)
             splitted_response = response.split("\n  ")
-            if (len(splitted_response) <= 0): raise Exception('Huawei', 'copy configuration inside devices filesystem method: no source file for startup!')
+            if (len(splitted_response) <= 0): raise Exception('Huawei',
+                                                              'copy configuration inside devices filesystem method: no source file for startup!')
 
             source_file_type = splitted_response[5].split("     ")
-            if(len(source_file_type) <=0): raise Exception('Huawei', 'copy configuration inside devices filesystem method: no source file for startup!')
+            if (len(source_file_type) <= 0): raise Exception('Huawei',
+                                                             'copy configuration inside devices filesystem method: no source file for startup!')
 
-            if("Next startup saved-configuration file:" in source_file_type[0]): source_file = source_file_type[1]
-            else: raise Exception('Huawei', 'copy configuration inside devices filesystem method: no source file for startup!')
+            if ("Next startup saved-configuration file:" in source_file_type[0]):
+                source_file = source_file_type[1]
+            else:
+                raise Exception('Huawei',
+                                'copy configuration inside devices filesystem method: no source file for startup!')
 
         if (configuration_type == 'running'):
             source_file = './vrpcfg.zip'
 
-        copy_commnd_str = 'copy %s %s'%(source_file,destination_file)
+        copy_commnd_str = 'copy %s %s' % (source_file, destination_file)
         expected_map = OrderedDict()
         expected_map['\[Y/N\]'] = lambda session: session.send_line('Y')
-        output = self.cli.send_command(command=copy_commnd_str,expected_str ='Done',expected_map=expected_map)
+        output = self.cli.send_command(command=copy_commnd_str, expected_str='Done', expected_map=expected_map)
         error_match = re.search(r'(ERROR|[Ee]rror).*', output)
         if error_match:
             self.logger.error(error_match.group())
@@ -193,20 +202,17 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             error_str = error_str[:error_str.find('\n')]
             raise Exception('Huawei VRP', 'Configure replace error: ' + error_str)
 
-    def reload(self, sleep_timeout=60, retries=15):
+    def reboot(self, sleep_timeout=60, retries=15):
         """Reload device
 
         :param sleep_timeout: period of time, to wait for device to get back online
         :param retries: amount of retires to get response from device after it will be rebooted
         """
+        expected_map = {'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y'),'\(y\/n\)|continue': lambda session: session.send_line('y'),
+                        '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
 
-        expected_map = {'[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
-                        '\(y\/n\)|continue': lambda session: session.send_line('y'),
-                        'reload': lambda session: session.send_line(''),
-                        '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')
-                        }
         try:
-            self.cli.send_command(command='reload', expected_map=expected_map, timeout=3)
+            self.cli.send_command(command='reboot', expected_map=expected_map, timeout=3)
 
         except Exception as e:
             session_type = self.cli.get_session_type()
@@ -227,7 +233,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             time.sleep(sleep_timeout)
             try:
                 self.logger.debug('Trying to send command to device ... (retry {} of {}'.format(retry, retries))
-                output = self.cli.send_command(command='', expected_str='(?<![#\n])[#>] *$', expected_map={}, timeout=5,
+                output = self.cli.send_command(command='', expected_str='r<.*?>|\[.*?\]', expected_map={}, timeout=5,
                                                is_need_default_prompt=False)
                 if len(output) == 0:
                     continue
@@ -236,17 +242,24 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                 break
             except Exception as e:
                 self.logger.error('HuaweiHandlerBase', 'Reload receives error: {0}'.format(e.message))
-                self.logger.debug('Wait {} seconds and retry ...'.format(sleep_timeout/2))
-                time.sleep(sleep_timeout/2)
+                self.logger.debug('Wait {} seconds and retry ...'.format(sleep_timeout / 2))
+                time.sleep(sleep_timeout / 2)
                 pass
 
         return is_reloaded
 
-    def update_firmware(self, remote_host, file_path, size_of_firmware=200000000):
-        """Update firmware version on device by loading provided image, performs following steps:
 
-            1. Copy bin file from remote tftp server.
-            2. Clear in run config boot system section.
+    def _remove_old_system_software_files(self):
+        """Clear .cc files in current configuration
+        """
+        response = self.cli.send_config_command('delete /unreserved *.cc')
+
+
+    def update_firmware(self, remote_host, file_path, size_of_firmware=200000000):
+        """Update firmware version on device by loading provided image, performs following steps (the steps are recommended by Huawei Upgrade Guide):
+
+            1. Copy .cc file from remote tftp server into the flash:/ dir.
+            2. Clear un-served .cc files run from the device memory flash.
             3. Set downloaded bin file as boot file and then reboot device.
             4. Check if firmware was successfully installed.
 
@@ -260,52 +273,72 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if firmware_obj.get_name() is None:
             raise Exception('Huawei VRP', "Invalid firmware name!\n \
                                 Firmware file must have: title, extension.\n \
-                                Example: isr4400-universalk9.03.10.00.S.153-3.S-ext.SPA.bin\n\n \
+                                Example: S5700EIV100R006C01SPC112.CC\n\n \
                                 Current path: " + file_path)
 
+        free_memory_size = self._get_free_memory_size('flash')
 
-        free_memory_size = self._get_free_memory_size('bootflash')
-
-
-        is_downloaded = self.copy(source_file=remote_host,
-                                  destination_file='bootflash:/' + file_path, timeout=600, retries=2)
-
-        if not is_downloaded[0]:
+        response, dst_file = self.download_config_from_remote_server(source_file=remote_host,
+                                                                     dst_path='flash:/' + file_path)
+        expected_str="TFTP: Downloading the file successfully"
+        if not re.search(expected_str, response, re.DOTALL):
             raise Exception('Huawei VRP', "Failed to download firmware from " + remote_host +
-                            file_path + "!\n" + is_downloaded[1])
+                            file_path + "!\n" + dst_file)
 
-        self.cli.send_command(command='configure terminal', expected_str='(config)#')
-        self._remove_old_boot_system_config()
-        output = self.cli.send_command('do show run | include boot')
+        self._remove_old_system_software_files()
 
-        is_boot_firmware = False
+
         firmware_full_name = firmware_obj.get_name() + \
                              '.' + firmware_obj.get_extension()
 
-        retries = 5
-        while (not is_boot_firmware) and (retries > 0):
-            self.cli.send_command(command='boot system flash bootflash:' + firmware_full_name, expected_str='(config)#')
-            self.cli.send_command(command='config-reg 0x2102', expected_str='(config)#')
+        output = self.cli.send_config_command(command="startup system-software {0}".format(dst_file),expected_map={'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y')})
+        bootrom_expected_str = "Info: BOOTROM UPGRADE OK"
+        if not re.search(bootrom_expected_str, output, re.DOTALL):
+            raise Exception('Huawei VRP', "Failed to upgrade firmware from " + remote_host +
+                            file_path + "!\n" + dst_file)
 
-            output = self.cli.send_command('do show run | include boot')
+        output = self.cli.send_config_command(command="upgrade basic-bootrom {0}".format(dst_file), expected_map={
+            'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y')})
+        if not re.search(bootrom_expected_str, output, re.DOTALL):
+            raise Exception('Huawei VRP', "Failed to upgrade firmware from " + remote_host +
+                            file_path + "!\n" + dst_file)
 
-            retries -= 1
-            is_boot_firmware = output.find(firmware_full_name) != -1
+        is_reloaded = self.reboot()
 
-        if not is_boot_firmware:
-            raise Exception('Huawei VRP', "Can't add firmware '" + firmware_full_name + "' dor boot!")
+        if(is_reloaded == False):
+            raise Exception('Huawei VRP', "Failed to reload router after boot " + remote_host +
+                            file_path + "!\n" + dst_file)
 
-        self.cli.send_command(command='exit')
-        output = self.cli.send_command(command='copy run start',
-                                       expected_map={'\?': lambda session: session.send_line('')})
-        is_reloaded = self.reload()
-        output_version = self.cli.send_command(command='show version | include image file')
+
+        output_version = self.cli.send_command(command='display version')
 
         is_firmware_installed = output_version.find(firmware_full_name)
         if is_firmware_installed != -1:
             return 'Finished updating firmware!'
         else:
             raise Exception('Huawei VRP', 'Firmware update was unsuccessful!')
+
+    def _get_free_memory_size(self, partition):
+        """Get available memory size on provided partition
+        :param partition: file system
+        :return: size of free memory in bytes
+        """
+
+        cmd = 'dir {0}:'.format(partition)
+        output = self.cli.send_command(command=cmd, retries=100)
+
+        find_str = 'KB total ('
+        position = output.find(find_str)
+        if position != -1:
+            size_str = output[(position + len(find_str)):]
+
+            size_match = re.match('[0-9]*', size_str)
+            if size_match:
+                return int(size_match.group())
+            else:
+                return -1
+        else:
+            return -1
 
     def _get_resource_attribute(self, resource_full_path, attribute_name):
         """Get resource attribute by provided attribute_name
@@ -322,16 +355,13 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             raise Exception(e.message)
         return result
 
-
-
-    def download_config_from_remote_server(self,source_file,dst_path):
+    def download_config_from_remote_server(self, source_file, dst_path):
         host = None
 
         if '://' in source_file:
             destination_file_data_list = re.sub('/+', '/', source_file.rstrip('/')).split('/')
             host = destination_file_data_list[1]
             filename = destination_file_data_list[-2] + '/' + destination_file_data_list[-1]
-
 
         if host and not validateIP(host):
             raise Exception('Huawei', 'Upload to remote server method: remote server ip is not valid!')
@@ -348,7 +378,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         output = self.cli.send_command(command=tftp_command_str, expected_map=expected_map)
 
-        return output,dst_file
+        return output, dst_file
 
     def save_configuration(self, folder_path, configuration_type='', vrf=None):
         """Backup save the 'startup-config' or current 'running-config' from device to provided file_system [ftp|tftp]
@@ -361,13 +391,13 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         remote = False
         if configuration_type == '':
             configuration_type = 'running'
-        if (configuration_type.lower()!= 'startup') and (configuration_type.lower() != 'running'):
-            raise Exception('Huawei failes during save configuration process', "Source configuration type must be 'startup' or 'running'!")
+        if (configuration_type.lower() != 'startup') and (configuration_type.lower() != 'running'):
+            raise Exception('Huawei failes during save configuration process',
+                            "Source configuration type must be 'startup' or 'running'!")
         if folder_path == '':
             folder_path = self._get_resource_attribute(self.resource_name, 'Backup Location')
             if len(folder_path) <= 0:
                 raise Exception('Huawei failes during save configuration process', "Path is empty")
-
 
         system_name = re.sub('\s+', '_', self.resource_name)
         if len(system_name) > 23:
@@ -377,14 +407,17 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                                                     _get_time_stamp())
         self.logger.info('configuration destination filename is {0}'.format(destination_filename))
         if '://' in folder_path: remote = True
-        #if folder_path.startswith('ftp://') or folder_path.startswith('tftp://'):
+        # if folder_path.startswith('ftp://') or folder_path.startswith('tftp://'):
 
         destination_file = folder_path.rstrip('/') + '/' + destination_filename
 
-        if remote: is_uploaded = self.upload_to_remote_server(destination_file=destination_file, configuration_type=configuration_type,vrf=vrf)
+        if remote: is_uploaded = self.upload_to_remote_server(destination_file=destination_file,
+                                                              configuration_type=configuration_type, vrf=vrf)
 
-        if remote == False: is_uploaded = self.copy_configuration_inside_devices_filesystem(destination_file=destination_file,configuration_type=configuration_type,vrf=vrf)
+        if remote == False: is_uploaded = self.copy_configuration_inside_devices_filesystem(
+            destination_file=destination_file, configuration_type=configuration_type, vrf=vrf)
 
+#TODO######################################################################################################################
         if is_uploaded[0] is True:
             self.logger.info('Save complete')
             return '{0},'.format(destination_filename)
@@ -402,8 +435,9 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         if not re.search('append|override', restore_method.lower()):
             raise Exception('Huawei', "Restore method is wrong! Should be Append or Override")
-        if (configuration_type.lower()!= 'startup') and (configuration_type.lower() != 'running'):
-            raise Exception('Huawei failes during save configuration process', "Source configuration type must be 'startup' or 'running'!")
+        if (configuration_type.lower() != 'startup') and (configuration_type.lower() != 'running'):
+            raise Exception('Huawei failes during save configuration process',
+                            "Source configuration type must be 'startup' or 'running'!")
 
         self.logger.info('Start restoring device configuration from {}'.format(source_path))
 
@@ -411,51 +445,44 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if not match_data:
             raise Exception('Huawei', "Configuration type is empty or wrong")
 
-
-
         if source_path == '': raise Exception('Huawei', "Path is empty")
 
         remote = False
 
         if '://' in source_path:
             remote = True
-            dst_path =self.cli.send_command(command='pwd')
-            if (dst_path!=''): dst_path = dst_path.strip('pwd\n').split('\n\n')
-            if(len(dst_path)>0): dst_path= dst_path[0]
-            if(not dst_path.endswith('/')): dst_path = dst_path +'/'
+            dst_path = self.cli.send_command(command='pwd')
+            if (dst_path != ''): dst_path = dst_path.strip('pwd\n').split('\n\n')
+            if (len(dst_path) > 0): dst_path = dst_path[0]
+            if (not dst_path.endswith('/')): dst_path = dst_path + '/'
 
-        #if (remote): output,source_path =  self.download_config_from_remote_server(source_path,dst_path)
+        if (remote): output, source_path = self.download_config_from_remote_server(source_path, dst_path)
 
         if (restore_method.lower() == 'override') and (configuration_type.lower() == 'startup'):
             command = 'display startup'
             response = self.cli.send_command(command=command)
             splitted_response = response.split("\n  ")
-            if (len(splitted_response) <= 0): raise Exception('Huawei', 'copy configuration inside devices filesystem method: no source file for startup!')
+            if (len(splitted_response) <= 0): raise Exception('Huawei',
+                                                              'copy configuration inside devices filesystem method: no source file for startup!')
 
             startup_source_file_name = splitted_response[5].split("     ")
-            if(len(startup_source_file_name) <=0): raise Exception('Huawei', 'copy configuration inside devices filesystem method: no source file for startup!')
-            if("Next startup saved-configuration file:" in startup_source_file_name[0]): startup_source_file = startup_source_file_name[1]
-            else: raise Exception('Huawei', 'copy configuration inside devices filesystem method: no source file for startup!')
+            if (len(startup_source_file_name) <= 0): raise Exception('Huawei',
+                                                                     'copy configuration inside devices filesystem method: no source file for startup!')
+            if ("Next startup saved-configuration file:" in startup_source_file_name[0]):
+                startup_source_file = startup_source_file_name[1]
+            else:
+                raise Exception('Huawei',
+                                'copy configuration inside devices filesystem method: no source file for startup!')
             expected_map = OrderedDict()
             expected_map[r'Overwrite\?'.format(source_path)] = lambda session: session.send_line(
                 'y')
             expected_map[r'\[Y/N\]'] = lambda session: session.send_line('y')
             expected_map['\([Yy]es/[Nn]o\)'] = lambda session: session.send_line('yes')
-            self.cli.send_command(command='copy {0} {1}'.format(source_path,startup_source_file),expected_map=expected_map)
+            self.cli.send_command(command='copy {0} {1}'.format(source_path, startup_source_file),
+                                  expected_map=expected_map)
 
 
-        '''
-            is_uploaded = self.copy(source_file=source_file, destination_file=destination_filename, vrf=vrf)
-        elif (restore_method.lower() == 'override') and (destination_filename == 'running-config'):
-
-            if not self._check_replace_command():
-                raise Exception('Override running-config is not supported for this device')
-            self.configure_replace(source_filename=source_file, timeout=600)
-            is_uploaded = (True, '')
-        else:
-            is_uploaded = self.copy(source_file=source_file, destination_file=destination_filename, vrf=vrf)
-        '''
-        is_uploaded=[]
+        is_uploaded = []
         if is_uploaded[0] is False:
             raise Exception('Huawei', is_uploaded[1])
 
@@ -466,44 +493,3 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         else:
             raise Exception('Huawei', is_downloaded[1])
 
-
-    def _remove_old_boot_system_config(self):
-        """Clear boot system parameters in current configuration
-        """
-
-        data = self.cli.send_command('do show run | include boot')
-        start_marker_str = 'boot-start-marker'
-        index_begin = data.find(start_marker_str)
-        index_end = data.find('boot-end-marker')
-
-        if index_begin == -1 or index_end == -1:
-            return
-
-        data = data[index_begin + len(start_marker_str):index_end]
-        data_list = data.split('\n')
-
-        for line in data_list:
-            if line.find('boot system') != -1:
-                self.cli.send_command(command='no ' + line, expected_str='(config)#')
-
-    def _get_free_memory_size(self, partition):
-        """Get available memory size on provided partition
-        :param partition: file system
-        :return: size of free memory in bytes
-        """
-
-        cmd = 'dir {0}:'.format(partition)
-        output = self.cli.send_command(command=cmd, retries=100)
-
-        find_str = 'bytes total ('
-        position = output.find(find_str)
-        if position != -1:
-            size_str = output[(position + len(find_str)):]
-
-            size_match = re.match('[0-9]*', size_str)
-            if size_match:
-                return int(size_match.group())
-            else:
-                return -1
-        else:
-            return -1
