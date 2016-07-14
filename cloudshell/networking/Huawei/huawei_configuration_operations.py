@@ -422,7 +422,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if remote == False: is_uploaded = self.copy_configuration_inside_devices_filesystem(
             destination_file=destination_file, configuration_type=configuration_type, vrf=vrf)
 
-#TODO######################################################################################################################
+
         if is_uploaded[0] is True:
             self.logger.info('Save complete')
             return '{0},'.format(destination_filename)
