@@ -208,8 +208,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         :param sleep_timeout: period of time, to wait for device to get back online
         :param retries: amount of retires to get response from device after it will be rebooted
         """
-        expected_map = {'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y'),'\(y\/n\)|continue': lambda session: session.send_line('y'),
-                        '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
+        expected_map = {'Continue\?\[Y/N\]': lambda session: session.send_line('y'),'Info: System is rebooting, please wait...':lambda a : time.sleep(10)}
 
         try:
             self.cli.send_command(command='reboot', expected_map=expected_map, timeout=3)
@@ -218,8 +217,9 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             session_type = self.cli.get_session_type()
 
             if not session_type == 'CONSOLE':
-                self._logger.info('Session type {}, close session'.format(session_type))
+                self.logger.info('Session type {}, close session'.format(session_type))
                 self.cli.destroy_threaded_session()
+
 
         self.logger.info('Wait 20 seconds for device to reload.....')
         time.sleep(20)
@@ -248,12 +248,12 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         return is_reloaded
 
-
-    def _remove_old_system_software_files(self):
+    '''def _remove_old_system_software_files(self):
         """Clear .cc files in current configuration
         """
-        response = self.cli.send_config_command('delete /unreserved *.cc')
 
+        response = self.cli.send_command('delete /unreserved *.cc',expected_map={
+            'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y')})'''
 
     def update_firmware(self, remote_host, file_path, size_of_firmware=200000000):
         """Update firmware version on device by loading provided image, performs following steps (the steps are recommended by Huawei Upgrade Guide):
@@ -276,32 +276,37 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                                 Example: S5700EIV100R006C01SPC112.CC\n\n \
                                 Current path: " + file_path)
 
+
+        src_file_name = file_path.split("/") if "/" in file_path else file_path.split("\\")
+        if (len(src_file_name) > 0 and len(src_file_name) > 1): src_file_name = src_file_name[-1]
+        else: raise Exception('Huawei VRP', "Incorrect given file path%s"%(file_path))
+
+
+
         free_memory_size = self._get_free_memory_size('flash')
 
-        response, dst_file = self.download_config_from_remote_server(source_file=remote_host,
-                                                                     dst_path='flash:/' + file_path)
+        response, dst_file = self.download_config_from_remote_server(source_file=remote_host, dst_path='flash:/' + src_file_name)
+
+
+
         expected_str="TFTP: Downloading the file successfully"
         if not re.search(expected_str, response, re.DOTALL):
             raise Exception('Huawei VRP', "Failed to download firmware from " + remote_host +
                             file_path + "!\n" + dst_file)
 
-        self._remove_old_system_software_files()
+        #self._remove_old_system_software_files()
 
 
         firmware_full_name = firmware_obj.get_name() + \
                              '.' + firmware_obj.get_extension()
 
-        output = self.cli.send_config_command(command="startup system-software {0}".format(dst_file),expected_map={'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y')})
-        bootrom_expected_str = "Info: BOOTROM UPGRADE OK"
+        output = self.cli.send_command(command="startup system-software {0}".format(dst_file),expected_map={'Continue\?\(Y/N\)|\[N\]': lambda session: session.send_line('y'),\
+                                                                                                            'Continue\?\[Y/N\]':lambda session: session.send_line('y')})
+        bootrom_expected_str = "Info: Succeeded"
         if not re.search(bootrom_expected_str, output, re.DOTALL):
             raise Exception('Huawei VRP', "Failed to upgrade firmware from " + remote_host +
                             file_path + "!\n" + dst_file)
 
-        output = self.cli.send_config_command(command="upgrade basic-bootrom {0}".format(dst_file), expected_map={
-            'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y')})
-        if not re.search(bootrom_expected_str, output, re.DOTALL):
-            raise Exception('Huawei VRP', "Failed to upgrade firmware from " + remote_host +
-                            file_path + "!\n" + dst_file)
 
         is_reloaded = self.reboot()
 
@@ -365,7 +370,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         if host and not validateIP(host):
             raise Exception('Huawei', 'Upload to remote server method: remote server ip is not valid!')
-        dst_file = dst_path + destination_file_data_list[-1]
+        dst_file = dst_path.strip("/") + "/" + destination_file_data_list[-1]
         tftp_command_str = 'tftp {0} get {1} {2}'.format(host, filename, dst_file)
 
         expected_map = OrderedDict()
