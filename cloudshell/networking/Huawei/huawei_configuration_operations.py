@@ -27,7 +27,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         self._api = api
         try:
             self.resource_name = resource_name or get_resource_name()
-        except Exception:
+        except Exception as e:
             raise Exception('HuaweiHandlerBase', 'ResourceName is empty or None')
 
     @property
@@ -57,6 +57,45 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                 raise Exception('Huawei', 'Cli Service is none or empty')
         return self._cli
 
+
+
+    def get_configuration_file_name_from_device(self,configuration_type):
+        if (configuration_type == 'startup'):
+
+            command = 'display startup'
+            response = self.cli.send_command(command=command)
+            splitted_response = response.split("\n  ")
+            if (len(splitted_response) <= 0): raise Exception('Huawei',
+                                                              'Upload to remote server method: no source file for startup!')
+
+            source_file_type = splitted_response[5].split("     ")
+            if (len(source_file_type) <= 0): raise Exception('Huawei',
+                                                             'Upload to remote server method: no source file for startup!')
+
+            if ("Next startup saved-configuration file:" in source_file_type[0]):
+                source_file = source_file_type[1]
+            else:
+                raise Exception('Huawei', 'Upload to remote server method: no source file for startup!')
+
+        if (configuration_type == 'running'):
+
+            command = 'display startup'
+            response = self.cli.send_command(command=command)
+            splitted_response = response.split("\n  ")
+            if (len(splitted_response) <= 0): raise Exception('Huawei',
+                                                              'Upload to remote server method: no source file for startup!')
+
+            source_file_type = splitted_response[5].split("     ")
+            if (len(source_file_type) <= 0): raise Exception('Huawei',
+                                                             'Upload to remote server method: no source file for startup!')
+
+            if ("Startup saved-configuration file:" in source_file_type[0]):
+                source_file = source_file_type[1]
+            else:
+                raise Exception('Huawei', 'Upload to remote server method: no source file for startup!')
+
+            return source_file
+
     def upload_to_remote_server(self, destination_file, configuration_type, vrf, timeout=600, retries=5):
         """Copy file from device to tftp or vice versa, as well as copying inside devices filesystem
         :param source_file: source file.
@@ -76,29 +115,9 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if host and not validateIP(host):
             raise Exception('Huawei', 'Upload to remote server method: remote server ip is not valid!')
 
-        if (configuration_type == 'startup'):
+        source_file = self.get_configuration_file_name_from_device(configuration_type)
+        tftp_command_str = 'tftp {0} put {1} {2}'.format(host, source_file, filename)
 
-            command = 'display startup'
-            response = self.cli.send_command(command=command)
-            splitted_response = response.split("\n  ")
-            if (len(splitted_response) <= 0): raise Exception('Huawei',
-                                                              'Upload to remote server method: no source file for startup!')
-
-            source_file_type = splitted_response[5].split("     ")
-            if (len(source_file_type) <= 0): raise Exception('Huawei',
-                                                             'Upload to remote server method: no source file for startup!')
-
-            if ("Next startup saved-configuration file:" in source_file_type[0]):
-                source_file = source_file_type[1]
-            else:
-                raise Exception('Huawei', 'Upload to remote server method: no source file for startup!')
-
-        if (configuration_type == 'running'):
-            source_file = './vrpcfg.zip'
-
-        tftp_command_str = 'tftp -a {0} tftp-server put {1} {2}'.format(host, source_file, filename)
-        if vrf:
-            tftp_command_str += ' vrf {0}'.format(vrf)
 
         expected_map = OrderedDict()
         if host:
@@ -122,26 +141,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         """
         is_success = True
         message = ''
-        if (configuration_type == 'startup'):
-
-            command = 'display startup'
-            response = self.cli.send_command(command=command)
-            splitted_response = response.split("\n  ")
-            if (len(splitted_response) <= 0): raise Exception('Huawei',
-                                                              'copy configuration inside devices filesystem method: no source file for startup!')
-
-            source_file_type = splitted_response[5].split("     ")
-            if (len(source_file_type) <= 0): raise Exception('Huawei',
-                                                             'copy configuration inside devices filesystem method: no source file for startup!')
-
-            if ("Next startup saved-configuration file:" in source_file_type[0]):
-                source_file = source_file_type[1]
-            else:
-                raise Exception('Huawei',
-                                'copy configuration inside devices filesystem method: no source file for startup!')
-
-        if (configuration_type == 'running'):
-            source_file = './vrpcfg.zip'
+        source_file = self.get_configuration_file_name_from_device(configuration_type)
 
         copy_commnd_str = 'copy %s %s' % (source_file, destination_file)
         expected_map = OrderedDict()
@@ -208,10 +208,10 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         :param sleep_timeout: period of time, to wait for device to get back online
         :param retries: amount of retires to get response from device after it will be rebooted
         """
-        expected_map = {'Continue\?\[Y/N\]': lambda session: session.send_line('y'),'Info: System is rebooting, please wait...':lambda a : time.sleep(10)}
+        expected_map = {'Continue\?\[Y/N\]': lambda session: session.send_line('y'),'Info: System is rebooting, please wait...':lambda a : time.sleep(250)}
 
         try:
-            self.cli.send_command(command='reboot', expected_map=expected_map, timeout=3)
+            self.cli.send_command(command='reboot fast', expected_map=expected_map, timeout=3)
 
         except Exception as e:
             session_type = self.cli.get_session_type()
@@ -437,9 +437,11 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         :param restore_method: override current config or not
         :return:
         """
-
-        if not re.search('append|override', restore_method.lower()):
+        if re.search('append',restore_method.lower()):
+            raise Exception('Huawei',"Huawei do no yet support append operations on configuration files")
+        if not re.search('override', restore_method.lower()):
             raise Exception('Huawei', "Restore method is wrong! Should be Append or Override")
+
         if (configuration_type.lower() != 'startup') and (configuration_type.lower() != 'running'):
             raise Exception('Huawei failes during save configuration process',
                             "Source configuration type must be 'startup' or 'running'!")
@@ -463,7 +465,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         if (remote): output, source_path = self.download_config_from_remote_server(source_path, dst_path)
 
-        if (restore_method.lower() == 'override') and (configuration_type.lower() == 'startup'):
+        if (restore_method.lower() == 'override') and (configuration_type.lower() == 'startup' or configuration_type.lower() == 'running'):
             command = 'display startup'
             response = self.cli.send_command(command=command)
             splitted_response = response.split("\n  ")
@@ -479,15 +481,18 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                 raise Exception('Huawei',
                                 'copy configuration inside devices filesystem method: no source file for startup!')
             expected_map = OrderedDict()
-            expected_map[r'Overwrite\?'.format(source_path)] = lambda session: session.send_line(
-                'y')
             expected_map[r'\[Y/N\]'] = lambda session: session.send_line('y')
-            expected_map['\([Yy]es/[Nn]o\)'] = lambda session: session.send_line('yes')
+
             self.cli.send_command(command='copy {0} {1}'.format(source_path, startup_source_file),
                                   expected_map=expected_map)
 
+        if (restore_method.lower() == 'override') and (configuration_type.lower() == 'running'):
+            is_reloaded = self.reboot()
 
+            if (is_reloaded == False):
+                raise Exception('Huawei VRP', "Failed During Reseting Current Configuration")
         is_uploaded = []
+#TODO##############################################################################################################################################
         if is_uploaded[0] is False:
             raise Exception('Huawei', is_uploaded[1])
 

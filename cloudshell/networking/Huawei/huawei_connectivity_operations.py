@@ -43,7 +43,8 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         if self._api is None:
             try:
                 self._api = inject.instance('api')
-            except:
+            except Exception as e:
+                print e
                 raise Exception('HuaweiConnectivityOperations', 'Api handler is none or empty')
         return self._api
 
