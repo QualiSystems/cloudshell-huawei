@@ -16,10 +16,6 @@ def _get_time_stamp():
     return time.strftime("%d%m%y-%H%M%S", time.localtime())
 
 
-# def _is_valid_copy_filesystem(filesystem):
-#     return not re.match('bootflash$|tftp$|ftp$|harddisk$|nvram$|pram$|flash$|localhost$', filesystem) is None
-
-
 class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOperationsInterface):
     def __init__(self, cli=None, logger=None, api=None, resource_name=None):
         self._cli = cli
@@ -131,8 +127,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         return self._check_download_from_tftp(output)
 
-    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type, vrf, timeout=600,
-                                                     retries=5):
+    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type):
 
         """Copy file from device to tftp or vice versa, as well as copying inside devices filesystem
         :param source_file: source file.
@@ -156,7 +151,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         return is_success, message
 
     def _check_download_from_tftp(self, output):
-        """Verify if file was successfully uploaded
+        """Verify if file was successfully uploaded by download th uploaded file form tftp
         :param output: output from cli
         :return True or False, and success or error message
         :rtype tuple
@@ -361,6 +356,14 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         return result
 
     def download_config_from_remote_server(self, source_file, dst_path):
+
+        """The method goal is to download configuration file froma given remote path.
+        :param folder_path:  tftp/ftp server where file be saved.
+        :param dst_path: The destination inside the device where the file will be saved
+        saved file name format: <ResourceName>-<ConfigurationType>-<DDMMYY>-<HHMMSS>
+        :return: status message / exception and the saved file name
+        """
+
         host = None
 
         if '://' in source_file:
@@ -491,15 +494,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
             if (is_reloaded == False):
                 raise Exception('Huawei VRP', "Failed During Reseting Current Configuration")
-        is_uploaded = []
-#TODO##############################################################################################################################################
-        if is_uploaded[0] is False:
-            raise Exception('Huawei', is_uploaded[1])
 
-        is_downloaded = (True, '')
+        return 'Finished restore configuration!'
 
-        if is_downloaded[0] is True:
-            return 'Finished restore configuration!'
-        else:
-            raise Exception('Huawei', is_downloaded[1])
 
