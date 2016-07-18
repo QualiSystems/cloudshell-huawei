@@ -15,10 +15,12 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         self._cli = cli
         self._logger = logger
         self._api = api
-        try:
-            self.resource_name = get_resource_name()
-        except Exception:
-            raise Exception('HuaweiHandlerBase', 'ResourceName is empty or None')
+        if(resource_name is not None): self.resource_name = resource_name
+        else:
+            try:
+                self.resource_name = get_resource_name()
+            except Exception:
+                raise Exception('HuaweiHandlerBase', 'ResourceName is empty or None')
 
     @property
     def logger(self):
@@ -122,6 +124,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         self._load_vlan_command_templates()
         self.validate_vlan_methods_incoming_parameters(vlan_range, port, port_mode)
         port_name = self.get_port_name(port)
+        print port_name
         self.logger.info('Start vlan configuration: vlan {0}; interface {1}.'.format(vlan_range, port_name))
         vlan_config_actions = OrderedDict()
         interface_config_actions = OrderedDict()
