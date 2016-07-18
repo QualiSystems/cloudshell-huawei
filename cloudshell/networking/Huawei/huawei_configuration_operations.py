@@ -81,7 +81,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             if (len(splitted_response) <= 0): raise Exception('Huawei',
                                                               'Upload to remote server method: no source file for startup!')
 
-            source_file_type = splitted_response[5].split("     ")
+            source_file_type = splitted_response[4].split("     ")
             if (len(source_file_type) <= 0): raise Exception('Huawei',
                                                              'Upload to remote server method: no source file for startup!')
 
@@ -127,7 +127,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         return self._check_download_from_tftp(output)
 
-    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type):
+    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type,vrf=None):
 
         """Copy file from device to tftp or vice versa, as well as copying inside devices filesystem
         :param source_file: source file.

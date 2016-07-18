@@ -124,7 +124,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         self._load_vlan_command_templates()
         self.validate_vlan_methods_incoming_parameters(vlan_range, port, port_mode)
         port_name = self.get_port_name(port)
-        print port_name
+        print "port_name",port_name
         self.logger.info('Start vlan configuration: vlan {0}; interface {1}.'.format(vlan_range, port_name))
         vlan_config_actions = OrderedDict()
         interface_config_actions = OrderedDict()
@@ -244,7 +244,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         expected_map = {'[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]': lambda session: session.send_line('yes'),
                         '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
         output = self.send_config_command_list(commands_list, expected_map=expected_map)
-
+        print output
         if re.search('[Cc]ommand rejected.*', output):
             error = 'Command rejected'
             for line in output.splitlines():
