@@ -30,21 +30,18 @@ class TestHuaweiConfiguration(TestCase):
         return HuaweiConfigurationOperations(cli=self.cli, logger=self.logger, api=self.api,
                                             resource_name='Huawei37')
 
-    def test_save_validates_source_filename_parameter(self):
-        print "in test_save_validates_source_filename_parameter"
-        handler = self._get_handler()
-        handler.cli.send_command = MagicMock(return_value=res)
-        self.assertRaises(Exception, handler.save_configuration, 'flash:/',
-                          'running')
 
 
     def test_save_validates_destination_host_host_parameter(self):
         handler = self._get_handler()
         handler.cli.send_command = MagicMock(return_value=res)
-        self.assertRaises(Exception, handler.save_configuration, 'flash:/',
-                          'setup')
-        self.assertRaises(Exception, handler.save_configuration, 'flash:/',
-                          'running')
+
+        response_template = '{0}-{1}-{2}'.format('Huawei37', "startup",
+                                                _get_time_stamp())
+        response = handler.save_configuration('flash:/', "startup")
+
+        self.assertTrue(re.search(response_template, response))
+
 
     def test_save_config(self):
         resource_name = 'Huawei37'
@@ -52,11 +49,12 @@ class TestHuaweiConfiguration(TestCase):
         handler = self._get_handler()
         handler.resource_name = resource_name
 
-        responce_template = '{0}-{1}-{2}'.format(resource_name, "running",
+        response_template = '{0}-{1}-{2}'.format(resource_name, "running",
                                                     _get_time_stamp())
-        print responce_template
+        print response_template
         handler.cli.send_command = MagicMock(return_value=res)
-        responce = handler.save_configuration('flash:/',
-                                              "running")
-        self.assertIsNotNone(responce)
-        self.assertTrue(re.search(responce_template, responce))
+        response = handler.save_configuration('flash:/',"running")
+        self.assertIsNotNone(response)
+        print response_template
+        print response
+        self.assertTrue(re.search(response_template, response))
