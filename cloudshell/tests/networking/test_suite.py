@@ -9,7 +9,7 @@ if __name__ == '__main__':
 
     loader = unittest.TestLoader()
     loader.testMethodPrefix = 'test_'
-    suite = loader.discover("test_connectivity", pattern='test_apply_connectivity_changes.py')
+    suite = loader.discover("huawei/test_configuration_operations", pattern='test_*.py')
 
     allTests = unittest.TestSuite(suite)
     runner.run(allTests)
