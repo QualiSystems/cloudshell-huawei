@@ -5,7 +5,11 @@ from cloudshell.networking.Huawei.huawei_connectivity_operations import HuaweiCo
 from cloudshell.networking.generic_bootstrap import NetworkingGenericBootstrap
 import cloudshell.networking.Huawei.vrp.huawei_vrp_configuration as driver_config
 import re
+
+
 class TestHuaweiConnectivity(TestCase):
+
+
     def _get_handler(self):
         bootstrap = NetworkingGenericBootstrap()
         bootstrap.add_config(driver_config)
@@ -18,7 +22,7 @@ class TestHuaweiConnectivity(TestCase):
                                             resource_name='Huawei37')
 
     def test_apply_connectivity_changes_validates_request_parameter(self):
-        print "test"
+
         request = """{
         	"driverRequest": {
         		"actions": [{

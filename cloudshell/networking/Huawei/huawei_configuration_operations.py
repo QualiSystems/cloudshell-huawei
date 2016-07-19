@@ -82,6 +82,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                                                               'Upload to remote server method: no source file for startup!')
 
             source_file_type = splitted_response[4].split("     ")
+
             if (len(source_file_type) <= 0): raise Exception('Huawei',
                                                              'Upload to remote server method: no source file for startup!')
 
@@ -428,7 +429,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         if is_uploaded[0] is True:
             self.logger.info('Save complete')
-            return '{0},'.format(destination_filename)
+            return '{0}'.format(destination_filename)
         else:
             self.logger.info('Save failed with an error: {0}'.format(is_uploaded[1]))
             raise Exception(is_uploaded[1])
@@ -475,7 +476,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             if (len(splitted_response) <= 0): raise Exception('Huawei',
                                                               'copy configuration inside devices filesystem method: no source file for startup!')
 
-            startup_source_file_name = splitted_response[5].split("     ")
+            startup_source_file_name = splitted_response[5].split("\t")#("     ")
             if (len(startup_source_file_name) <= 0): raise Exception('Huawei',
                                                                      'copy configuration inside devices filesystem method: no source file for startup!')
             if ("Next startup saved-configuration file:" in startup_source_file_name[0]):
