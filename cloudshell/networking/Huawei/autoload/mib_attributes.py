@@ -69,16 +69,16 @@ class MibAttributes(AutoloadOperationsInterface):
 
 
 
-        self.lldp_loc_port_desc = self.snmp.get_table('LLDP-MIB', 'lldpLocPortTable') #lldpLocPortDesc
+        self.lldp_loc_port_desc = self.snmp.get_table('LLDP-MIB', 'lldpLocPortTable')
         self.lldp_rem_table = self.snmp.get_table('LLDP-MIB', 'lldpRemTable')
-        self.dot3_stats_index = self.snmp.get_table('EtherLike-MIB', 'dot3StatsIndex') #dot3StatsIndex
-        self.ip_v4_table = self.snmp.get_table('RFC1213-MIB','ipAddrTable') #  'ipAddressAddr'
-        self.ip_v6_entry = self.snmp.get_table('IPV6-MIB', 'ipv6AddrTable')  #  'ipv6IfDescr' ''ipv6AddrEntry'
+        self.dot3_stats_index = self.snmp.get_table('EtherLike-MIB', 'dot3StatsIndex')
+        self.ip_v4_table = self.snmp.get_table('RFC1213-MIB','ipAddrTable')
+        self.ip_v6_entry = self.snmp.get_table('IPV6-MIB', 'ipv6AddrTable')
         self.port_channel_ports = self.snmp.get_table('IEEE8023-LAG-MIB', 'dot3adAggPortAttachedAggID')
 
         self.sys_location = self.snmp.get_property('SNMPv2-MIB', 'sysLocation', 0)
         self.sys_contact = self.snmp.get_property('SNMPv2-MIB', 'sysContact', 0)
-        self.physical_parent_rel_pos = self.snmp.get_table('ENTITY-MIB', 'entPhysicalParentRelPos') #entPhysicalParentRelPos
+        self.physical_parent_rel_pos = self.snmp.get_table('ENTITY-MIB', 'entPhysicalParentRelPos')
 
         self.logger.info('IfDescr object loaded')
         self.entity_mib_table = self._get_entity_table()
@@ -488,7 +488,7 @@ class MibAttributes(AutoloadOperationsInterface):
 
 
     def _get_adjacent(self, interface_id):
-        """Get connected device interface and device name to the specified port id, using cdp or lldp protocols
+        """Get connected device interface and device name to the specified port id, using lldp protocols (or cdp)
 
         :param interface_id: port id
         :return: device's name and port connected to port id
