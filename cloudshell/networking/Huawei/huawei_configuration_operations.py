@@ -119,16 +119,16 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         expected_map = OrderedDict()
         if host:
             expected_map[host] = lambda session: session.send_line('')
-        expected_map[r'{0}|\s+[Vv][Rr][Ff]\s+|\[confirm\]|\?'.format(filename)] = lambda session: session.send_line('')
+
         expected_map['\[Y/N\]'] = lambda session: session.send_line('y')
-        expected_map['\([Yy]es/[Nn]o\)'] = lambda session: session.send_line('yes')
+        expected_map['\(Y/N\)'] = lambda session: session.send_line('y')
         # expected_map['\(.*\)'] = lambda session: session.send_line('y')
 
-        output = self.cli.send_command(command=tftp_command_str, expected_map=expected_map)
+        output = self.cli.send_command(command=tftp_command_str, expected_map=expected_map,check_action_loop_detector=False)
 
         return self._check_download_from_tftp(output)
 
-    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type,vrf=None):
+    def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type,vrf=None,check_action_loop_detector=False):
 
         """Copy file from device to tftp or vice versa, as well as copying inside devices filesystem
         :param source_file: source file.
@@ -142,7 +142,8 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         copy_commnd_str = 'copy %s %s' % (source_file, destination_file)
         expected_map = OrderedDict()
         expected_map['\[Y/N\]'] = lambda session: session.send_line('Y')
-        output = self.cli.send_command(command=copy_commnd_str, expected_str='Done', expected_map=expected_map)
+        expected_map['\(Y/N\)'] = lambda session: session.send_line('Y')
+        output = self.cli.send_command(command=copy_commnd_str, expected_str='Done', expected_map=expected_map,check_action_loop_detector=check_action_loop_detector)
         error_match = re.search(r'(ERROR|[Ee]rror).*', output)
         if error_match:
             self.logger.error(error_match.group())
@@ -175,30 +176,8 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         return is_success, message
 
-    def configure_replace(self, source_filename, timeout=30):
-        """Replace config on target device with specified one
 
-        :param source_filename: full path to the file which will replace current running-config
-        :param timeout: period of time code will wait for replace to finish
-        """
-
-        if not source_filename:
-            raise Exception('Huawei', "No source filename provided for config replace method!")
-        command = 'configure replace ' + source_filename
-        expected_map = {
-            '[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
-            '\(y\/n\)': lambda session: session.send_line('y'),
-            '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y'),
-            'overwritte': lambda session: session.send_line('yes')
-        }
-        output = self.cli.send_command(command=command, expected_map=expected_map, timeout=timeout)
-        match_error = re.search(r'[Ee]rror:', output)
-        if match_error is not None:
-            error_str = output[match_error.end() + 1:]
-            error_str = error_str[:error_str.find('\n')]
-            raise Exception('Huawei VRP', 'Configure replace error: ' + error_str)
-
-    def reboot(self, sleep_timeout=60, retries=15):
+    def reboot(self, sleep_timeout=60, retries=15,check_action_loop_detector=False):
         """Reload device
 
         :param sleep_timeout: period of time, to wait for device to get back online
@@ -207,7 +186,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         expected_map = {'Continue\?\[Y/N\]': lambda session: session.send_line('y'),'Info: System is rebooting, please wait...':lambda a : time.sleep(250)}
 
         try:
-            self.cli.send_command(command='reboot fast', expected_map=expected_map, timeout=3)
+            self.cli.send_command(command='reboot fast', expected_map=expected_map, timeout=3,check_action_loop_detector=check_action_loop_detector)
 
         except Exception as e:
             session_type = self.cli.get_session_type()
@@ -296,8 +275,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         firmware_full_name = firmware_obj.get_name() + \
                              '.' + firmware_obj.get_extension()
 
-        output = self.cli.send_command(command="startup system-software {0}".format(dst_file),expected_map={'Continue\?\(Y/N\)|\[N\]': lambda session: session.send_line('y'),\
-                                                                                                            'Continue\?\[Y/N\]':lambda session: session.send_line('y')})
+        output = self.cli.send_command(command="startup system-software {0}".format(dst_file),expected_map={'Continue\?\[Y/N\]':lambda session: session.send_line('y')})
         bootrom_expected_str = "Info: Succeeded"
         if not re.search(bootrom_expected_str, output, re.DOTALL):
             raise Exception('Huawei VRP', "Failed to upgrade firmware from " + remote_host +
@@ -380,16 +358,15 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         expected_map = OrderedDict()
         if host:
             expected_map[host] = lambda session: session.send_line('')
-        expected_map[r'{0}|\s+[Vv][Rr][Ff]\s+|\[confirm\]|\?'.format(filename)] = lambda session: session.send_line('')
-        expected_map['\[Y/N\]'] = lambda session: session.send_line('y')
-        expected_map['\([Yy]es/[Nn]o\)'] = lambda session: session.send_line('yes')
-        # expected_map['\(.*\)'] = lambda session: session.send_line('y')
 
-        output = self.cli.send_command(command=tftp_command_str, expected_map=expected_map)
+        expected_map['\[Y/N\]'] = lambda session: session.send_line('y')
+        expected_map['\(Y/N\)'] = lambda session: session.send_line('y')
+
+        output = self.cli.send_command(command=tftp_command_str, expected_map=expected_map,check_action_loop_detector=False)
 
         return output, dst_file
 
-    def save_configuration(self, folder_path, configuration_type='', vrf=None):
+    def save_configuration(self, folder_path, configuration_type='', vrf=None,check_action_loop_detector=False):
         """Backup save the 'startup-config' or current 'running-config' from device to provided file_system [ftp|tftp]
         Also possible to backup config to the device
         :param folder_path:  tftp/ftp server where file be saved. Or a local path. tftp://<user>:<password>@<host>:<port>//<folder>
@@ -415,8 +392,8 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         destination_filename = '{0}-{1}-{2}'.format(system_name, configuration_type.lower(),
                                                     _get_time_stamp())
         self.logger.info('configuration destination filename is {0}'.format(destination_filename))
-        if '://' in folder_path: remote = True
-        # if folder_path.startswith('ftp://') or folder_path.startswith('tftp://'):
+        if folder_path.startswith('ftp://') or folder_path.startswith('tftp://'): remote = True
+
 
         destination_file = folder_path.rstrip('/') + '/' + destination_filename
 
@@ -476,7 +453,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             if (len(splitted_response) <= 0): raise Exception('Huawei',
                                                               'copy configuration inside devices filesystem method: no source file for startup!')
 
-            startup_source_file_name = splitted_response[5].split("\t")#("     ")
+            startup_source_file_name = splitted_response[5].split("     ")
             if (len(startup_source_file_name) <= 0): raise Exception('Huawei',
                                                                      'copy configuration inside devices filesystem method: no source file for startup!')
             if ("Next startup saved-configuration file:" in startup_source_file_name[0]):
@@ -488,7 +465,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             expected_map[r'\[Y/N\]'] = lambda session: session.send_line('y')
 
             self.cli.send_command(command='copy {0} {1}'.format(source_path, startup_source_file),
-                                  expected_map=expected_map)
+                                  expected_map=expected_map,check_action_loop_detector=False)
 
         if (restore_method.lower() == 'override') and (configuration_type.lower() == 'running'):
             is_reloaded = self.reboot()
