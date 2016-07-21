@@ -1,0 +1,16 @@
+language: python
+python:
+    - "2.7"
+
+install:
+    - pip install -r requirements.txt
+    - pip install -r test_requirements.txt
+    - pip install coveralls
+
+script:
+    - python runtests.py --with-coverage  --cover-package=package
+    - python setup.py test
+    - python setup.py sdist --format zip
+
+after_success:
+    coveralls
