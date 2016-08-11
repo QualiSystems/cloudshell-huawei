@@ -128,7 +128,8 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         self.logger.info('Start vlan configuration: vlan {0}; interface {1}.'.format(vlan_range, port_name))
         vlan_config_actions = OrderedDict()
         interface_config_actions = OrderedDict()
-        vlan_config_actions['configure_vlan'] = vlan_range
+        if 'access' in port_mode:
+            vlan_config_actions['configure_vlan'] = vlan_range
 
 
         self.configure_vlan(vlan_config_actions)
@@ -142,7 +143,37 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
             interface_config_actions['port_mode_trunk'] = []
         elif 'trunk' in port_mode and vlan_range != '':
             interface_config_actions['port_mode_trunk'] = []
-            interface_config_actions['allow_trunk_vlan'] = [vlan_range]
+            ranges_list=[]
+            is_range = True if '-' in vlan_range else False
+            splited_vlan_range = vlan_range.split(',')
+
+            if(len(splited_vlan_range)>1) or is_range:
+                for vlan in splited_vlan_range:
+
+                    if '-' in vlan:
+                        ranges_leafs = vlan.split('-')
+                        for vlan_range_border in ranges_leafs:
+                            result = validateVlanNumber(vlan_range_border)
+                            if not result:
+                                raise Exception('HuaweiHandlerBase',
+                                                'Only one vlan could be assigned to the interface in Trunk mode')
+                        ranges_list = ranges_list+(range(int(ranges_leafs[0]),int(ranges_leafs[1])+1))
+                    else:
+                        result = validateVlanNumber(vlan)
+                        if not result:
+                            raise Exception('HuaweiHandlerBase',
+                                            'Only one vlan could be assigned to the interface in Trunk mode')
+                        ranges_list.append(vlan)
+
+                interface_config_actions['allow_trunk_vlan_ranges'] =[" ".join(str(vlan_id) for vlan_id in ranges_list)]
+                vlan_config_actions = OrderedDict()
+                vlan_config_actions['vlan banch'] = " ".join(str(vlan_id) for vlan_id in ranges_list)
+
+                self.configure_vlan(vlan_config_actions)
+                self.cli.exit_configuration_mode()
+
+            else:
+                interface_config_actions['allow_trunk_vlan'] = [vlan_range]
         elif 'access' in port_mode and vlan_range != '':
             if not qnq or qnq is False:
                 self.logger.info('qnq is {0}'.format(qnq))
