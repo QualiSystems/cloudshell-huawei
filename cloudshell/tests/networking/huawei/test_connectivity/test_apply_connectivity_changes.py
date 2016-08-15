@@ -1,9 +1,9 @@
 __author__ = 'Luiza Nacshon'
 from unittest import TestCase
 from mock import MagicMock
-from cloudshell.networking.Huawei.huawei_connectivity_operations import HuaweiConnectivityOperations
+from cloudshell.networking.huawei.huawei_connectivity_operations import HuaweiConnectivityOperations
 from cloudshell.networking.generic_bootstrap import NetworkingGenericBootstrap
-import cloudshell.networking.Huawei.vrp.huawei_vrp_configuration as driver_config
+import cloudshell.networking.huawei.vrp.huawei_vrp_configuration as driver_config
 import re
 
 

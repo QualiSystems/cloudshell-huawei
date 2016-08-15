@@ -4,7 +4,7 @@ import re
 
 from cloudshell.networking.networking_utils import *
 from cloudshell.networking.operations.connectivity_operations import ConnectivityOperations
-from cloudshell.networking.Huawei.command_templates.vlan import VLAN_COMMANDS_TEMPLATES
+from cloudshell.networking.huawei.command_templates.vlan import VLAN_COMMANDS_TEMPLATES
 from cloudshell.cli.command_template.command_template_service import add_templates, get_commands_list
 from cloudshell.shell.core.context_utils import get_resource_name
 
@@ -242,7 +242,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         temp_port_full_name = self._get_resource_full_name(port, port_resource_map)
         if not temp_port_full_name:
             self.logger.error('Interface was not found')
-            raise Exception('Huawei', 'Interface name was not found')
+            raise Exception('huawei', 'Interface name was not found')
 
         temp_port_name = temp_port_full_name.split('/')[-1]
         if 'port-channel' not in temp_port_full_name.lower():
@@ -281,7 +281,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
             for line in output.splitlines():
                 if line.lower().startswith('command rejected'):
                     error = line.strip(' \t\n\r')
-            raise Exception('Huawei', 'Failed to assign Vlan, {0}'.format(error))
+            raise Exception('huawei', 'Failed to assign Vlan, {0}'.format(error))
 
         return 'Finished configuration of ethernet interface!'
 

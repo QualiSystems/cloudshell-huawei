@@ -16,11 +16,11 @@ pBridgeMIB = ModuleIdentity((1, 3, 6, 1, 2, 1, 17, 6)).setRevisions(("2006-01-09
 pBridgeMIBObjects = MibIdentifier((1, 3, 6, 1, 2, 1, 17, 6, 1))
 
 class EnabledStatus(Integer32, TextualConvention):
-    print 'in Huawei-p-bridge-mib EnabledStatus','#'*20
+    print 'in huawei-p-bridge-mib EnabledStatus','#'*20
 
     subtypeSpec = Integer32.subtypeSpec+SingleValueConstraint(1, 2,)
     namedValues = NamedValues(("enabled", 1), ("disabled", 2),)
-    print 'in Huawei-p-bridge-mib EnabledStatus END', '#' * 20
+    print 'in huawei-p-bridge-mib EnabledStatus END', '#' * 20
 
 dot1dExtBase = MibIdentifier((1, 3, 6, 1, 2, 1, 17, 6, 1, 1))
 dot1dPriority = MibIdentifier((1, 3, 6, 1, 2, 1, 17, 6, 1, 2))

@@ -2,13 +2,13 @@ import re
 import inject
 from cloudshell.shell.core.driver_context import AutoLoadDetails
 from cloudshell.networking.autoload.networking_autoload_resource_attributes import NetworkingStandardRootAttributes
-from cloudshell.networking.Huawei.autoload.mib_attributes import MibAttributes
+from cloudshell.networking.huawei.autoload.mib_attributes import MibAttributes
 
 
 class HuaweiGenericSNMPAutoload(MibAttributes):
 
     def __init__(self, snmp_handler=None, logger=None, supported_os=None):
-        """Basic init with Huawei router mib attribuites handler and logger
+        """Basic init with huawei router mib attribuites handler and logger
 
         :param snmp_handler:
         :param logger:
@@ -38,7 +38,7 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         self._is_valid_device_os()
 
         self.logger.info('*'*10)
-        self.logger.info('Starting Huawei SNMP discovery process')
+        self.logger.info('Starting huawei SNMP discovery process')
 
         self.load_huawei_mib()
         self._get_device_details()

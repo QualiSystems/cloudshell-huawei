@@ -11,8 +11,8 @@ with open('test_requirements.txt') as f_tests:
     required_for_tests = f_tests.read().splitlines()
 
 setup(
-    name='cloudshell-networking-Huawei',
-    url='https://github.com/QualiSystems/cloudshell-networking-Huawei',
+    name='cloudshell-networking-huawei',
+    url='https://github.com/QualiSystems/cloudshell-networking-huawei',
     author='QualiSystems',
     author_email='info@qualisystems.com',
     packages=find_packages(),

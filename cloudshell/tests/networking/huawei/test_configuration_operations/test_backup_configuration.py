@@ -1,6 +1,6 @@
 from unittest import TestCase
 from mock import MagicMock
-from cloudshell.networking.Huawei.huawei_configuration_operations import HuaweiConfigurationOperations
+from cloudshell.networking.huawei.huawei_configuration_operations import HuaweiConfigurationOperations
 import re,time
 
 

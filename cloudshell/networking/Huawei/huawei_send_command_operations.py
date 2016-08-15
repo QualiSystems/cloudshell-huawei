@@ -31,7 +31,7 @@ class HuaweiSendCommandOperations(SendCommandInterface):
             try:
                 self._logger = inject.instance('logger')
             except:
-                raise Exception('Huawei', 'Logger is none or empty')
+                raise Exception('huawei', 'Logger is none or empty')
         return self._logger
 
     @property
@@ -40,7 +40,7 @@ class HuaweiSendCommandOperations(SendCommandInterface):
             try:
                 self._snmp_handler = inject.instance('snmp_handler')
             except:
-                raise Exception('Huawei', 'Snmp handler is none or empty')
+                raise Exception('huawei', 'Snmp handler is none or empty')
         return self._snmp_handler
 
     @property
@@ -49,7 +49,7 @@ class HuaweiSendCommandOperations(SendCommandInterface):
             try:
                 self._api = inject.instance('api')
             except:
-                raise Exception('Huawei', 'Api handler is none or empty')
+                raise Exception('huawei', 'Api handler is none or empty')
         return self._api
 
     @property
@@ -58,7 +58,7 @@ class HuaweiSendCommandOperations(SendCommandInterface):
             try:
                 self._cli = inject.instance('cli_service')
             except:
-                raise Exception('Huawei', 'Cli Service is none or empty')
+                raise Exception('huawei', 'Cli Service is none or empty')
         return self._cli
 
     def send_command(self, command, expected_str=None, expected_map=None, timeout=30, retries=10,

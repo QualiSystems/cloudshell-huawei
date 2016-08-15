@@ -28,7 +28,7 @@ class MibAttributes(AutoloadOperationsInterface):
         self.resources = list()
         self.attributes = list()
 
-        self.vendor = 'Huawei'
+        self.vendor = 'huawei'
 
 
         self.sys_descr = self.snmp.get(('SNMPv2-MIB', 'sysDescr'))['sysDescr']
@@ -58,7 +58,7 @@ class MibAttributes(AutoloadOperationsInterface):
 
 
     def _load_snmp_objects_and_tables(self):
-        """ Load all Huawei  interface entries objects from MIB tables
+        """ Load all huawei  interface entries objects from MIB tables
 
         :return: ''
         """
