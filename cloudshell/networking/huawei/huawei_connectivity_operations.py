@@ -157,6 +157,11 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
                             if not result:
                                 raise Exception('HuaweiHandlerBase',
                                                 'Only one vlan could be assigned to the interface in Trunk mode')
+                        if (int(ranges_leafs[0]) > int(ranges_leafs[1])):
+                            temp = ranges_leafs[0]
+                            ranges_leafs[0]  = ranges_leafs[1]
+                            ranges_leafs[1] = temp
+
                         ranges_list = ranges_list+(range(int(ranges_leafs[0]),int(ranges_leafs[1])+1))
                     else:
                         result = validateVlanNumber(vlan)
@@ -178,7 +183,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
             if not qnq or qnq is False:
                 self.logger.info('qnq is {0}'.format(qnq))
                 interface_config_actions['port_mode_access'] = []
-            interface_config_actions['port_default_vlan'] = [vlan_range]
+                interface_config_actions['port_default_vlan'] = [vlan_range]
         if qnq and qnq is True:
             if not self._does_interface_support_qnq(port_name):
                 raise Exception('interface does not support QnQ')
