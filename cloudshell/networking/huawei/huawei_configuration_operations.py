@@ -91,7 +91,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             else:
                 raise Exception('huawei', 'Upload to remote server method: no source file for startup!')
 
-            return source_file
+        return source_file
 
     def upload_to_remote_server(self, destination_file, configuration_type, vrf, timeout=600, retries=5):
         """Copy file from device to tftp or vice versa, as well as copying inside devices filesystem
