@@ -170,12 +170,12 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
                                             'Only one vlan could be assigned to the interface in Trunk mode')
                         ranges_list.append(vlan)
 
-                interface_config_actions['allow_trunk_vlan_ranges'] =[" ".join(str(vlan_id) for vlan_id in ranges_list)]
-                vlan_config_actions = OrderedDict()
-                vlan_config_actions['vlan banch'] = " ".join(str(vlan_id) for vlan_id in ranges_list)
+                    interface_config_actions['allow_trunk_vlan_ranges'] = ranges_leafs[0] + " to " + ranges_leafs[1]
+                    vlan_config_actions = OrderedDict()
+                    vlan_config_actions['vlan batch'] = ranges_leafs[0] + " to " + ranges_leafs[1]
 
-                self.configure_vlan(vlan_config_actions)
-                self.cli.exit_configuration_mode()
+                    self.configure_vlan(vlan_config_actions)
+                    self.cli.exit_configuration_mode()
 
             else:
                 interface_config_actions['allow_trunk_vlan'] = [vlan_range]

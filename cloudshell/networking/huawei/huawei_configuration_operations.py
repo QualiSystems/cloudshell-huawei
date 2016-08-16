@@ -87,9 +87,15 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                                                              'Upload to remote server method: no source file for startup!')
 
             if ("Startup saved-configuration file:" in source_file_type[0]):
+
                 source_file = source_file_type[1]
+                if(source_file==''):
+                    try:
+                        source_file = source_file_type[2]
+                    except:
+                        raise Exception('huawei', 'Upload to remote server method: no source file for running!')
             else:
-                raise Exception('huawei', 'Upload to remote server method: no source file for startup!')
+                raise Exception('huawei', 'Upload to remote server method: no source file for running!')
 
         return source_file
 
