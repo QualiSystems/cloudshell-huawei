@@ -405,7 +405,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if len(system_name) > 23:
             system_name = system_name[:23]
 
-        destination_filename = '{0}-{1}-{2}'.format(system_name, configuration_type.lower(),
+        destination_filename = '{0}-{1}-{2}.zip'.format(system_name, configuration_type.lower(),
                                                     _get_time_stamp())
         self.logger.info('configuration destination filename is {0}'.format(destination_filename))
         if folder_path.startswith('ftp://') or folder_path.startswith('tftp://'): remote = True
