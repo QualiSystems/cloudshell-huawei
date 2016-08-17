@@ -361,7 +361,10 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if '://' in source_file:
             destination_file_data_list = re.sub('/+', '/', source_file.rstrip('/')).split('/')
             host = destination_file_data_list[1]
-            filename = destination_file_data_list[-2] + '/' + destination_file_data_list[-1]
+            if(destination_file_data_list[-2]!=host):
+                filename = destination_file_data_list[-2] + '/' + destination_file_data_list[-1]
+            else:
+                filename =destination_file_data_list[-1]
 
         if host and not validateIP(host):
             raise Exception('huawei', 'Upload to remote server method: remote server ip is not valid!')
