@@ -139,7 +139,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
         output = self.cli.send_command(command=tftp_command_str, expected_map=expected_map,check_action_loop_detector=False)
 
-        return True#self._check_download_from_tftp(output)
+        return True,"Finished to save configuration"#self._check_download_from_tftp(output)
 
     def copy_configuration_inside_devices_filesystem(self, destination_file, configuration_type,vrf=None,check_action_loop_detector=False):
 
@@ -361,7 +361,10 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if '://' in source_file:
             destination_file_data_list = re.sub('/+', '/', source_file.rstrip('/')).split('/')
             host = destination_file_data_list[1]
-            filename = destination_file_data_list[-2] + '/' + destination_file_data_list[-1]
+            if(destination_file_data_list[-2]!=host):
+                filename = destination_file_data_list[-2] + '/' + destination_file_data_list[-1]
+            else:
+                filename =destination_file_data_list[-1]
 
         if host and not validateIP(host):
             raise Exception('huawei', 'Upload to remote server method: remote server ip is not valid!')
@@ -402,7 +405,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         if len(system_name) > 23:
             system_name = system_name[:23]
 
-        destination_filename = '{0}-{1}-{2}'.format(system_name, configuration_type.lower(),
+        destination_filename = '{0}-{1}-{2}.zip'.format(system_name, configuration_type.lower(),
                                                     _get_time_stamp())
         self.logger.info('configuration destination filename is {0}'.format(destination_filename))
         if folder_path.startswith('ftp://') or folder_path.startswith('tftp://'): remote = True
