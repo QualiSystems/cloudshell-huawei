@@ -5,6 +5,7 @@ import re
 import time
 
 from cloudshell.networking.networking_utils import validateIP
+from cloudshell.configuration.cloudshell_cli_binding_keys import CLI_SERVICE, CONNECTION_MANAGER
 from cloudshell.networking.huawei.firmware_data.huawei_firmware_data import HuaweiFirmwareData
 from cloudshell.networking.operations.interfaces.configuration_operations_interface import \
     ConfigurationOperationsInterface
@@ -196,20 +197,79 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
         :param sleep_timeout: period of time, to wait for device to get back online
         :param retries: amount of retires to get response from device after it will be rebooted
         """
-        expected_map = {'Continue\?\[Y/N\]': lambda session: session.send_line('y'),'Info: System is rebooting, please wait...':lambda a : time.sleep(250)}
+        #,'Info: System is rebooting, please wait...':lambda a : time.sleep(250)
+        expected_map = {'Continue\?\[Y/N\]': lambda session: session.send_line('y')}
 
         try:
             self.cli.send_command(command='reboot fast', expected_map=expected_map, timeout=3,check_action_loop_detector=check_action_loop_detector)
+
 
         except Exception as e:
             session_type = self.cli.get_session_type()
 
             if not session_type == 'CONSOLE':
-                self.logger.info('Session type {}, close session'.format(session_type))
+                self.logger.info('Session type is \'{}\', closing session...'.format(session_type))
                 self.cli.destroy_threaded_session()
+                connection_manager = inject.instance(CONNECTION_MANAGER)
+                connection_manager.decrement_sessions_count()
 
 
-        self.logger.info('Wait 20 seconds for device to reload.....')
+        self.logger.info('Wait 20 seconds for device to reload...')
+        time.sleep(20)
+
+
+        retry = 0
+        is_reloaded = False
+        while retry < retries:
+            retry += 1
+
+            time.sleep(sleep_timeout)
+            try:
+                self.logger.debug('Trying to send command to device ... (retry {} of {}'.format(retry, retries))
+                output = self.cli.send_command(command='', expected_str='(?<![#\n])[#>] *$', expected_map={}, timeout=5,
+                                               is_need_default_prompt=False)
+                if len(output) == 0:
+                    continue
+
+                is_reloaded = True
+                break
+            except Exception as e:
+                self.logger.error('HuaweiHandlerBase', 'Reload receives error: {0}'.format(e))
+                self.logger.debug('Wait {} seconds and retry ...'.format(str(sleep_timeout / 2)))
+                time.sleep(sleep_timeout / 2)
+                pass
+
+        return is_reloaded
+
+
+
+
+    def reload(self, sleep_timeout=60, retries=15):
+        """Reload device
+
+        :param sleep_timeout: period of time, to wait for device to get back online
+        :param retries: amount of retires to get response from device after it will be rebooted
+        """
+
+        expected_map = OrderedDict({'[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
+                                    '\(y/n\)|continue': lambda session: session.send_line('y'),
+                                    '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')
+                                    # 'reload': lambda session: session.send_line('')
+                                    })
+        try:
+            self.logger.info('Send \'reload\' to device...')
+            self.cli.send_command(command='reload', expected_map=expected_map, timeout=3)
+
+        except Exception as e:
+            session_type = self.cli.get_session_type()
+
+            if not session_type == 'CONSOLE':
+                self.logger.info('Session type is \'{}\', closing session...'.format(session_type))
+                self.cli.destroy_threaded_session()
+                connection_manager = inject.instance(CONNECTION_MANAGER)
+                connection_manager.decrement_sessions_count()
+
+        self.logger.info('Wait 20 seconds for device to reload...')
         time.sleep(20)
         # output = self.cli.send_command(command='', expected_str='.*', expected_map={})
 
@@ -221,7 +281,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
             time.sleep(sleep_timeout)
             try:
                 self.logger.debug('Trying to send command to device ... (retry {} of {}'.format(retry, retries))
-                output = self.cli.send_command(command='', expected_str='r<.*?>|\[.*?\]', expected_map={}, timeout=5,
+                output = self.cli.send_command(command='', expected_str='(?<![#\n])[#>] *$', expected_map={}, timeout=5,
                                                is_need_default_prompt=False)
                 if len(output) == 0:
                     continue
@@ -229,7 +289,7 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
                 is_reloaded = True
                 break
             except Exception as e:
-                self.logger.error('HuaweiHandlerBase', 'Reload receives error: {0}'.format(e.message))
+                self.logger.error('CiscoHandlerBase', e.message)
                 self.logger.debug('Wait {} seconds and retry ...'.format(sleep_timeout / 2))
                 time.sleep(sleep_timeout / 2)
                 pass
