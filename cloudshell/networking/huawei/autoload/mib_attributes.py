@@ -25,6 +25,7 @@ class MibAttributes(AutoloadOperationsInterface):
         self.entity_mib_table_black_list = ['alarm', 'fan', 'sensor']
         self.port_exclude_pattern = 'serial|stack|engine|management|MEth'
         self.module_exclude_pattern = 'cevsfp'
+        self.physicaldescriptionexcludepattern = 'Flexible Line Processing Unit'
         self.resources = list()
         self.attributes = list()
 
@@ -112,8 +113,12 @@ class MibAttributes(AutoloadOperationsInterface):
             modules = []
             modules.extend(self._get_module_parents(port))
             for module in modules:
+                entPhysicalDescr = self.entity_mib_table[module]['entPhysicalDescr']
+                if re.search(self.physicaldescriptionexcludepattern, entPhysicalDescr):
+                    self._excluded_models.append(module)
                 if module in self.module_list:
                     continue
+
                 vendor_type = self.snmp.get_property('ENTITY-MIB', 'entPhysicalVendorType', module)
                 if not re.search(self.module_exclude_pattern, vendor_type.lower()):
                     if module not in self.exclusion_list and module not in self.module_list:
@@ -240,6 +245,8 @@ class MibAttributes(AutoloadOperationsInterface):
         result = ''
         if item_id not in self.chassis_list:
             parent_id = int(self.entity_mib_table[item_id]['entPhysicalContainedIn'])
+            if parent_id  in self._excluded_models:
+                parent_id = int(self.entity_mib_table[parent_id]['entPhysicalContainedIn'])
             if parent_id not in self.relative_path.keys():
                 if parent_id in self.module_list:
                     result = self._get_resource_id(parent_id)
@@ -402,7 +409,9 @@ class MibAttributes(AutoloadOperationsInterface):
         port_list = list(self.port_list)
         module_list = list(self.module_list)
         for module in module_list:
-            if module not in self.exclusion_list:
+
+
+            if module not in self.exclusion_list and module not in self._excluded_models:
                 self.relative_path[module] = self.get_relative_path(module) + '/' + self._get_resource_id(module)
             else:
                 self.module_list.remove(module)
