@@ -27,6 +27,7 @@ VLAN_COMMANDS_TEMPLATES = {
     'no trunk': CommandTemplate('undo port trunk allow-pass vlan {0}'),
     'track': CommandTemplate('track {0} decrement {1}', [r'[0-9]+', r'[0-9]+'],
                              ['Wrong track number!', 'Wrong track decrement number!']),
+    'start_port_mode': CommandTemplate('portswitch'),
     'port_mode_trunk': CommandTemplate('port link-type trunk'),
     'port_mode_access': CommandTemplate('port link-type access'),
      'qnq': CommandTemplate('port link-type dot1q-tunnel'),
