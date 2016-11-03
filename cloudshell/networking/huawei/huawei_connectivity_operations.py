@@ -61,7 +61,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         result = self.cli.send_command_list(command_list, expected_map=expected_map)
         self.cli.exit_configuration_mode()
         return result
-
+    '''
     def _get_resource_full_name(self, port_resource_address, resource_details_map):
         """Recursively search for port name on the resource
 
@@ -84,6 +84,26 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
             if result is not None:
                 return result
         return result
+   '''
+
+    def _get_resource_full_name(self, port_resource_address, resource_details_map):
+        """Recursively search for port name on the resource
+
+        :param port_resource_address: port resource address
+        :param resource_details_map: full device resource structure
+        :return: full port resource name ('Huawei37/Chassis 1/Module 0/GigabitEthernet0-0-10')
+        :rtype: string
+        """
+
+        result = None
+        for port in resource_details_map.ChildResources:
+            if port.FullAddress in port_resource_address and port.FullAddress == port_resource_address:
+                return port.Name
+            if port.FullAddress in port_resource_address and port.FullAddress != port_resource_address:
+                result = self._get_resource_full_name(port_resource_address, port)
+            if result is not None:
+                return result
+        return result
 
     def _does_interface_support_qnq(self, interface_name):
         """Validate whether qnq is supported for certain port
@@ -92,6 +112,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
 
         result = False
         self.cli.send_config_command('interface {0}'.format(interface_name))
+        self.cli.send_config_command('portswitch')
         output = self.cli.send_config_command('port link-type ?')
         if 'dot1q-tunnel' in output.lower():
             result = True
@@ -137,7 +158,9 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
 
         interface_config_actions['configure_interface'] = port_name
         interface_config_actions['undo shutdown'] = []
+        interface_config_actions['start_port_mode'] = []
         if supported_os in supported_os:
+            interface_config_actions['start_port_mode'] = []
             interface_config_actions['port_mode_access'] = []
         if 'trunk' in port_mode and vlan_range == '':
             interface_config_actions['port_mode_trunk'] = []
