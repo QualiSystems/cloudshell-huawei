@@ -1,33 +1,24 @@
 import re
 import inject
 from cloudshell.shell.core.driver_context import AutoLoadDetails
-from cloudshell.networking.autoload.networking_autoload_resource_attributes import NetworkingStandardRootAttributes
 from cloudshell.networking.huawei.autoload.mib_attributes import MibAttributes
 
 
 class HuaweiGenericSNMPAutoload(MibAttributes):
 
-    def __init__(self, snmp_handler=None, logger=None, supported_os=None):
-        """Basic init with huawei router mib attribuites handler and logger
+    def __init__(self, snmp_handler, logger, supported_os, resource_name):
+        """Basic init with Huawei router mib attributes handler and logger
 
         :param snmp_handler:
         :param logger:
         :return:
         """
 
-        MibAttributes.__init__(self, snmp_handler, logger, supported_os)
+        MibAttributes.__init__(self, snmp_handler, logger, supported_os,resource_name)
         self._logger = logger
         self._excluded_models = []
         self.supported_os = supported_os
 
-    @property
-    def logger(self):
-        if self._logger is None:
-            try:
-                self._logger = inject.instance('logger')
-            except:
-                raise Exception('HuaweiAutoload', 'Logger is none or empty')
-        return self._logger
 
     def discover(self):
         """Load device structure and attributes: chassis, modules, submodules, ports, port-channels and power supplies
@@ -38,7 +29,7 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         self._is_valid_device_os()
 
         self.logger.info('*'*10)
-        self.logger.info('Starting huawei SNMP discovery process')
+        self.logger.info('Starting Huawei SNMP discovery process')
 
         self.load_huawei_mib()
         self._get_device_details()
@@ -182,7 +173,7 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         if match_version:
             result['version'] = match_version.groupdict()['software_version'].replace(',', '')
 
-        root = NetworkingStandardRootAttributes(**result)
+        root = self.root_model(**result)
         self.attributes.extend(root.get_autoload_resource_attributes())
         self.logger.info('Finished Loading Switch Attributes')
 

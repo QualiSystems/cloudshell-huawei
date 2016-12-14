@@ -1,15 +1,14 @@
 from cloudshell.snmp.quali_snmp import QualiMibTable
-from cloudshell.networking.autoload.networking_autoload_resource_structure import Port, PortChannel, PowerPort, \
-    Chassis, Module
-from cloudshell.networking.operations.interfaces.autoload_operations_interface import AutoloadOperationsInterface
+from package.cloudshell.networking.huawei.vrp.structures.autoload_structure import HuaweiRootDevice, \
+    GenericPortChannel,GenericPort,GenericPowerPort,GenericModule,GenericChassis
 import inject
 import os,re
 
 
-class MibAttributes(AutoloadOperationsInterface):
+class MibAttributes():
 
 #
-    def __init__(self, snmp_handler=None, logger=None, supported_os=None):
+    def __init__(self, snmp_handler, logger, supported_os,resource_name):
         self._snmp = snmp_handler
 
         self.module_list = []
@@ -20,7 +19,7 @@ class MibAttributes(AutoloadOperationsInterface):
         self.port_mapping = {}
         self.port_list = []
         self.relative_path = {}
-
+        self.root_model = HuaweiRootDevice
 
         self.entity_mib_table_black_list = ['alarm', 'fan', 'sensor']
         self.port_exclude_pattern = 'serial|stack|engine|management|MEth'
@@ -32,8 +31,9 @@ class MibAttributes(AutoloadOperationsInterface):
         self.vendor = 'huawei'
 
 
-        self.sys_descr = self.snmp.get(('SNMPv2-MIB', 'sysDescr'))['sysDescr']
-        self.sys_name = self.snmp.get_property('SNMPv2-MIB', 'sysName', 0)
+
+        self.root_model.set_system_name(self.snmp.get_property('SNMPv2-MIB', 'sysName', 0))
+        self.root_model.set_system_desc(self.snmp.get(('SNMPv2-MIB', 'sysDescr'))['sysDescr'])
         self.snmp_object_id = self.snmp.get_property('SNMPv2-MIB', 'sysObjectID', 0)
         self.if_descr = self.snmp.get_table('IF-MIB', 'ifDescr') #ifDescr
 
@@ -175,7 +175,9 @@ class MibAttributes(AutoloadOperationsInterface):
             attribute_map = {'description': self.snmp.get_property('IF-MIB', 'ifAlias', key),
                              'associated_ports': self._get_associated_ports(key)}
             attribute_map.update(self._get_ip_interface_details(key))
-            port_channel = PortChannel(name=interface_model, relative_path=interface_id, **attribute_map)
+            port_channel = GenericPortChannel(name=interface_model, relative_path=interface_id, **attribute_map)
+
+
             self._add_resource(port_channel)
 
             self.logger.info('Added ' + interface_model + ' Port Channel')
@@ -365,7 +367,7 @@ class MibAttributes(AutoloadOperationsInterface):
                              'adjacent': self._get_adjacent(self.port_mapping[port])}
             attribute_map.update(self._get_interface_details(self.port_mapping[port]))
             attribute_map.update(self._get_ip_interface_details(self.port_mapping[port]))
-            port_object = Port(name=interface_name, relative_path=self.relative_path[port], **attribute_map)
+            port_object = GenericPort(name=interface_name, relative_path=self.relative_path[port], **attribute_map)
             self._add_resource(port_object)
             self.logger.info('Added ' + interface_name + ' Port')
         self.logger.info('Finished Loading Ports')
@@ -394,7 +396,7 @@ class MibAttributes(AutoloadOperationsInterface):
                             'version': self.snmp.get_property('ENTITY-MIB', 'entPhysicalHardwareRev', port),
                             'serial_number': self.get_physical_serial_name(port)
                             }
-            power_port_object = PowerPort(name=port_name, relative_path=relative_path, **port_details)
+            power_port_object = GenericPowerPort(name=port_name, relative_path=relative_path, **port_details)
             self._add_resource(power_port_object)
 
             self.logger.info('Added ' + self.entity_mib_table[port]['entPhysicalName'].strip(' \t\n\r') + ' Power Port')
@@ -438,7 +440,7 @@ class MibAttributes(AutoloadOperationsInterface):
             if chassis_details_map['chassis_model'] == '':
                 chassis_details_map['chassis_model'] = self.entity_mib_table[chassis]['entPhysicalDescr']
             relative_path = '{0}'.format(chassis_id)
-            chassis_object = Chassis(relative_path=relative_path, **chassis_details_map)
+            chassis_object = GenericChassis(relative_path=relative_path, **chassis_details_map)
             self._add_resource(chassis_object)
             self.logger.info('Added ' + self.entity_mib_table[chassis]['entPhysicalDescr'] + ' Chass')
         self.logger.info('Finished Loading Modules')
@@ -466,7 +468,7 @@ class MibAttributes(AutoloadOperationsInterface):
             else:
                 module_name = 'Sub Module {0}'.format(module_index)
                 model = 'Generic Sub Module'
-            module_object = Module(name=module_name, model=model, relative_path=module_id, **module_details_map)
+            module_object = GenericModule(name=module_name, model=model, relative_path=module_id, **module_details_map)
             self._add_resource(module_object)
 
             self.logger.info('Added ' + self.entity_mib_table[module]['entPhysicalDescr'] + ' Module')
