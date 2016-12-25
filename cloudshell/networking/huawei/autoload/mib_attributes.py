@@ -131,10 +131,11 @@ class MibAttributes():
         return result
 
     def _get_resource_id(self, item_id):
+
         parent_id = int(self.entity_mib_table[item_id]['entPhysicalContainedIn'])
         if parent_id > 0 and parent_id in self.entity_mib_table:
             if re.search('container|backplane', self.entity_mib_table[parent_id]['entPhysicalClass']):
-                result = self.entity_mib_table[parent_id]['entPhysicalParentRelPos']
+                    result = self.entity_mib_table[parent_id]['entPhysicalParentRelPos']
             elif parent_id in self._excluded_models:
                 result = self._get_resource_id(parent_id)
             else:
@@ -235,6 +236,7 @@ class MibAttributes():
         """
 
         result = ''
+
         if item_id not in self.chassis_list:
             parent_id = int(self.entity_mib_table[item_id]['entPhysicalContainedIn'])
             if parent_id  in self._excluded_models:
