@@ -3,13 +3,14 @@ from cloudshell.cli.command_mode import CommandMode
 
 
 class DefaultCommandMode(CommandMode):
-    PROMPT = r'>\s*$'
+    PROMPT = '<.*?>'
     ENTER_COMMAND = ''
-    EXIT_COMMAND = ''
+    EXIT_COMMAND = 'quit'
+
 
     def __init__(self, context):
         """
-        Initialize Default command mode, only for cases when session started not in enable mode
+        Default command mode
 
         :param context:
         """
@@ -19,13 +20,13 @@ class DefaultCommandMode(CommandMode):
 
 
 class EnableCommandMode(CommandMode):
-    PROMPT = r'(?:(?!\)).)#\s*$'
-    ENTER_COMMAND = 'enable'
-    EXIT_COMMAND = ''
+    PROMPT = r'<.*?>'
+    ENTER_COMMAND = '' # system-view
+    EXIT_COMMAND = 'quit'
 
     def __init__(self, context):
         """
-        Initialize Enable command mode - default command mode for Cisco Shells
+        Initialize Enable command mode - supper command mode for huawei
 
         :param context:
         """
@@ -36,9 +37,9 @@ class EnableCommandMode(CommandMode):
 
 
 class ConfigCommandMode(CommandMode):
-    PROMPT = r'\(config.*\)#\s*$'
-    ENTER_COMMAND = 'configure terminal'
-    EXIT_COMMAND = 'exit'
+    PROMPT = r'\[.*?\]'
+    ENTER_COMMAND = 'sys'
+    EXIT_COMMAND = 'quit'
 
     def __init__(self, context):
         """
@@ -47,7 +48,7 @@ class ConfigCommandMode(CommandMode):
         :param context:
         """
         exit_action_map = {
-            self.PROMPT: lambda session, logger: session.send_line('exit', logger)}
+            self.PROMPT: lambda session, logger: session.send_line('quit', logger)}
         CommandMode.__init__(self, ConfigCommandMode.PROMPT,
                              ConfigCommandMode.ENTER_COMMAND,
                              ConfigCommandMode.EXIT_COMMAND,

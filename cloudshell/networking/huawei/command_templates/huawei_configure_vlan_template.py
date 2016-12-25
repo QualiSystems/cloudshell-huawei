@@ -1,51 +1,42 @@
 from collections import OrderedDict
 from cloudshell.cli.command_template.command_template import CommandTemplate
 
-# <editor-fold desc="Interface configuration templates">
 
 CONFIGURE_INTERFACE = CommandTemplate('interface {port_name}')
 
-SWITCHPORT_MODE = CommandTemplate('switchport[ mode {port_mode}]',
-                                  action_map=OrderedDict(
-                                      {'[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
-                                       '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}),
-                                  error_map=OrderedDict({
-                                      "[Ii]nvalid\s*([Ii]nput|[Cc]ommand)|[Cc]ommand rejected":
-                                          Exception('SWITCHPORT_MODE', 'Failed to switch port mode'),
-                                  }))
-
-SWITCHPORT_ALLOW_VLAN = CommandTemplate(
-    'switchport [trunk allowed{port_mode_trunk}] [access{port_mode_access}] vlan {vlan_range}',
-    action_map=OrderedDict(
-        {'[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
-         '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}),
-    error_map=OrderedDict({
-        "[Ii]nvalid\s*([Ii]nput|[Cc]ommand)|[Cc]ommand rejected": Exception('SWITCHPORT_MODE',
-                                                                            'Failed to switch port mode')}))
-
-# </editor-fold>
-
-# <editor-fold desc="Vlan configuration templates">
-
 CONFIGURE_VLAN = CommandTemplate('vlan {vlan_id}',
-                                 error_map=OrderedDict({"%.*\.": Exception('CONFIGURE_VLAN', "Error")}))
-STATE_ACTIVE = CommandTemplate('state active')
-
-# </editor-fold>
+                                 error_map=OrderedDict({"Error:": Exception('CONFIGURE_VLAN', "Error")}))
 
 SHUTDOWN = CommandTemplate('shutdown')
 
-NO_SHUTDOWN = CommandTemplate('no shutdown')
+UNDO_SHUTDOWN = CommandTemplate('undo shutdown')
 
-NO = CommandTemplate('no {command}')
+UNDO = CommandTemplate('undo {command}')
 
-IP = CommandTemplate('ip {0}')
+IP_ADDRESS = CommandTemplate('ip address {0}')
 
-# <editor-fold desc="Show templates">
 
-SHOW_RUNNING = CommandTemplate(
-    'show running-config [interface {port_name}] [ | include boot{boot}] [ | include snmp-server community{snmp}]')
+DISPLAY_RUNNING = CommandTemplate('display current-configuration [interface {port_name}]')
 
-SHOW_VERSION = CommandTemplate('show version')
+DISPLAY_VERSION = CommandTemplate('display version')
 
-# </editor-fold>
+VLAN_BATCH = CommandTemplate('vlan batch {vlan_id}')
+
+ALLOW_TRUNK_VLAN = CommandTemplate('port trunk allow-pass vlan {vlan_id}')
+
+NO_TRUNK = CommandTemplate('undo port trunk allow-pass vlan {vlan_id}')
+
+START_PORT_MODE = CommandTemplate('portswitch')
+
+PORT_MODE_TRUNK = CommandTemplate('port link-type trunk')
+
+PORT_MODE_ACCESS = CommandTemplate('port link-type access')
+
+QNQ = CommandTemplate('port link-type dot1q-tunnel')
+
+PORT_DEFAULT_VLAN = CommandTemplate('port default vlan {vlan_id}')
+
+SPEED = CommandTemplate('speed')
+
+COMMIT = CommandTemplate('commit')
+
