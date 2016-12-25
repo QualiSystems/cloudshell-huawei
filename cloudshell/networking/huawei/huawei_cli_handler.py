@@ -2,36 +2,33 @@ import re
 import time
 
 from cloudshell.cli.command_mode_helper import CommandModeHelper
-from cloudshell.networking.huawei.huawei_command_modes import  EnableCommandMode, DefaultCommandMode, ConfigCommandMode
+from cloudshell.networking.cisco.cisco_command_modes import EnableCommandMode, DefaultCommandMode, ConfigCommandMode
 from cloudshell.networking.cli_handler_impl import CliHandlerImpl
 from cloudshell.shell.core.api_utils import decrypt_password_from_attribute
 
 
-class HuaweiCliHandler(CliHandlerImpl):
+class CiscoCliHandler(CliHandlerImpl):
     def __init__(self, cli, context, logger, api):
-        try:
-            super(HuaweiCliHandler, self).__init__(cli, context, logger, api)
-            modes = CommandModeHelper.create_command_mode(context)
-            self.default_mode = modes[DefaultCommandMode]
-            self.enable_mode = modes[EnableCommandMode]
-            self.config_mode = modes[ConfigCommandMode]
-            self.logger=logger
-        except Exception as e:
-            print e
+        super(CiscoCliHandler, self).__init__(cli, context, logger, api)
+        modes = CommandModeHelper.create_command_mode(context)
+        self.default_mode = modes[DefaultCommandMode]
+        self.enable_mode = modes[EnableCommandMode]
+        self.config_mode = modes[ConfigCommandMode]
 
-    def on_session_start(self, session, logger=None):
+    def on_session_start(self, session, logger):
         """Send default commands to configure/clear session outputs
         :return:
         """
-        print logger
-        self._enter_config_mode(session, self.logger)
-        session.hardware_expect('user-interface console 0', ConfigCommandMode.PROMPT, logger)
-        session.hardware_expect('screen-length 0', ConfigCommandMode.PROMPT,logger)
-        session.hardware_expect('quit', ConfigCommandMode.PROMPT, logger)
-        session.hardware_expect('quit', DefaultCommandMode.PROMPT, logger)
 
+        self.enter_enable_mode(session=session, logger=logger)
+        session.hardware_expect('terminal length 0', EnableCommandMode.PROMPT, logger)
+        session.hardware_expect('terminal width 300', EnableCommandMode.PROMPT, logger)
+        session.hardware_expect('terminal no exec prompt timestamp', EnableCommandMode.PROMPT, logger)
+        self._enter_config_mode(session, logger)
+        session.hardware_expect('no logging console', ConfigCommandMode.PROMPT, logger)
+        session.hardware_expect('exit', EnableCommandMode.PROMPT, logger)
 
-    def _enter_config_mode(self, session, logger=None):
+    def _enter_config_mode(self, session, logger):
         max_retries = 5
         error_message = 'Failed to enter config mode, please check logs, for details'
         output = session.hardware_expect(ConfigCommandMode.ENTER_COMMAND,
@@ -47,7 +44,7 @@ class HuaweiCliHandler(CliHandlerImpl):
             if not re.search(ConfigCommandMode.PROMPT, output):
                 raise Exception('_enter_config_mode', error_message)
 
-    def enter_enable_mode(self, session, logger=None):
+    def enter_enable_mode(self, session, logger):
         """
         Enter enable mode
 

@@ -1,7 +1,8 @@
 import re
 from cloudshell.cli.cli_exception import CliException
-from cloudshell.networking.huawei.command_templates.huawei_commands_templates import *
-from cloudshell.networking.huawei.command_templates.huawei_configure_vlan_template import *
+from cloudshell.networking.cisco.command_templates.cisco_interface import CONFIGURE_INTERFACE, SHUTDOWN, \
+    SWITCHPORT_MODE, \
+    SWITCHPORT_ALLOW_VLAN, SHOW_RUNNING, NO, STATE_ACTIVE, CONFIGURE_VLAN, SHOW_VERSION, NO_SHUTDOWN
 from cloudshell.networking.cisco.command_templates.cisco_configuration_templates import COPY, DEL, CONFIGURE_REPLACE, \
     SNMP_SERVER_COMMUNITY, NO_SNMP_SERVER_COMMUNITY, BOOT_SYSTEM_FILE, CONFIG_REG, RELOAD
 
@@ -36,7 +37,7 @@ def set_vlan_to_interface(config_session, logger, vlan_range, port_mode, port_na
     """
 
     config_session.send_command(**CONFIGURE_INTERFACE.get_command(port_name=port_name))
-    config_session.send_command(**UNDO_SHUTDOWN.get_command(action_map=action_map, error_map=error_map))
+    config_session.send_command(**NO_SHUTDOWN.get_command(action_map=action_map, error_map=error_map))
     if qnq:
         port_mode = 'dot1q-tunnel'
 

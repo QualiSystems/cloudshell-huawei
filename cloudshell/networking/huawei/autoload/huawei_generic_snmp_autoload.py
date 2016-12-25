@@ -1,4 +1,5 @@
 import re
+import inject
 from cloudshell.shell.core.driver_context import AutoLoadDetails
 from cloudshell.networking.huawei.autoload.mib_attributes import MibAttributes
 
@@ -14,10 +15,9 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         """
 
         MibAttributes.__init__(self, snmp_handler, logger, supported_os,resource_name)
-
+        self._logger = logger
         self._excluded_models = []
         self.supported_os = supported_os
-        self.logger = logger
 
 
     def discover(self):
@@ -81,7 +81,9 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         """
 
         version = None
-
+        if not self.supported_os:
+            config = inject.instance('config')
+            self.supported_os = config.SUPPORTED_OS
         system_description = self.sys_descr
         print system_description
         match_str = re.sub('[\n\r]+', ' ', system_description.upper())
@@ -131,9 +133,11 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         :param resource: object which contains all required data for certain resource
         """
 
+        self.resources.append(resource.get_autoload_resource_details())
+        self.attributes.extend(resource.get_autoload_resource_attributes())
 
-        self.resources.append(resource.get_resource())
-        self.attributes.extend(resource.get_attributes())
+
+
 
 
     def _filter_entity_table(self, raw_entity_table):
@@ -156,23 +160,21 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         """
 
         self.logger.info('Start loading Switch Attributes')
-        result = {'system_name': self.snmp.get_property('SNMPv2-MIB', 'sysName', 0),
-                  'vendor': "huawei",
+        result = {'system_name': self.sys_name,
+                  'vendor': self.vendor,
                   'model': self._get_device_model(),
-                  'location': self.snmp.get_property('SNMPv2-MIB', 'sysLocation',0),
-                  'contact_name': self.snmp.get_property('SNMPv2-MIB', 'sysContact', 0),
-                  'system_desc':self.sys_descr,
-                  'os_version': ''}
-
+                  'location': self.sys_location,
+                  'contact': self.sys_contact,
+                  'version': ''}
         software_dscription = self.sys_descr
         print software_dscription
         match_version = re.search('Version\s+(?P<software_version>\S+)\S*\s+',
                                   software_dscription)
         if match_version:
-            result['os_version'] = match_version.groupdict()['software_version'].replace(',', '')
-        self.root_model.attributes = result
-        root = self.root_model
-        self.attributes.extend(root.get_attributes())
+            result['version'] = match_version.groupdict()['software_version'].replace(',', '')
+
+        root = self.root_model(**result)
+        self.attributes.extend(root.get_autoload_resource_attributes())
         self.logger.info('Finished Loading Switch Attributes')
 
 

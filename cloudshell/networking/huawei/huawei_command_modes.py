@@ -3,14 +3,13 @@ from cloudshell.cli.command_mode import CommandMode
 
 
 class DefaultCommandMode(CommandMode):
-    PROMPT = '<.*?>'
+    PROMPT = r'>\s*$'
     ENTER_COMMAND = ''
-    EXIT_COMMAND = 'quit'
-
+    EXIT_COMMAND = ''
 
     def __init__(self, context):
         """
-        Default command mode
+        Initialize Default command mode, only for cases when session started not in enable mode
 
         :param context:
         """
@@ -20,13 +19,13 @@ class DefaultCommandMode(CommandMode):
 
 
 class EnableCommandMode(CommandMode):
-    PROMPT = r'<.*?>'
-    ENTER_COMMAND = '' # system-view
-    EXIT_COMMAND = 'quit'
+    PROMPT = r'(?:(?!\)).)#\s*$'
+    ENTER_COMMAND = 'enable'
+    EXIT_COMMAND = ''
 
     def __init__(self, context):
         """
-        Initialize Enable command mode - supper command mode for huawei
+        Initialize Enable command mode - default command mode for Cisco Shells
 
         :param context:
         """
@@ -37,9 +36,9 @@ class EnableCommandMode(CommandMode):
 
 
 class ConfigCommandMode(CommandMode):
-    PROMPT = r'\[.*?\]'
-    ENTER_COMMAND = 'sys'
-    EXIT_COMMAND = 'quit'
+    PROMPT = r'\(config.*\)#\s*$'
+    ENTER_COMMAND = 'configure terminal'
+    EXIT_COMMAND = 'exit'
 
     def __init__(self, context):
         """
