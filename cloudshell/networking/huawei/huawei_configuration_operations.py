@@ -244,65 +244,6 @@ class HuaweiConfigurationOperations(ConfigurationOperationsInterface, FirmwareOp
 
 
 
-    def reload(self, sleep_timeout=60, retries=15):
-        """Reload device
-
-        :param sleep_timeout: period of time, to wait for device to get back online
-        :param retries: amount of retires to get response from device after it will be rebooted
-        """
-
-        expected_map = OrderedDict({'[\[\(][Yy]es/[Nn]o[\)\]]|\[confirm\]': lambda session: session.send_line('yes'),
-                                    '\(y/n\)|continue': lambda session: session.send_line('y'),
-                                    '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')
-                                    # 'reload': lambda session: session.send_line('')
-                                    })
-        try:
-            self.logger.info('Send \'reload\' to device...')
-            self.cli.send_command(command='reload', expected_map=expected_map, timeout=3)
-
-        except Exception as e:
-            session_type = self.cli.get_session_type()
-
-            if not session_type == 'CONSOLE':
-                self.logger.info('Session type is \'{}\', closing session...'.format(session_type))
-                self.cli.destroy_threaded_session()
-                connection_manager = inject.instance(CONNECTION_MANAGER)
-                connection_manager.decrement_sessions_count()
-
-        self.logger.info('Wait 20 seconds for device to reload...')
-        time.sleep(20)
-        # output = self.cli.send_command(command='', expected_str='.*', expected_map={})
-
-        retry = 0
-        is_reloaded = False
-        while retry < retries:
-            retry += 1
-
-            time.sleep(sleep_timeout)
-            try:
-                self.logger.debug('Trying to send command to device ... (retry {} of {}'.format(retry, retries))
-                output = self.cli.send_command(command='', expected_str='(?<![#\n])[#>] *$', expected_map={}, timeout=5,
-                                               is_need_default_prompt=False)
-                if len(output) == 0:
-                    continue
-
-                is_reloaded = True
-                break
-            except Exception as e:
-                self.logger.error('CiscoHandlerBase', e.message)
-                self.logger.debug('Wait {} seconds and retry ...'.format(sleep_timeout / 2))
-                time.sleep(sleep_timeout / 2)
-                pass
-
-        return is_reloaded
-
-    '''def _remove_old_system_software_files(self):
-        """Clear .cc files in current configuration
-        """
-
-        response = self.cli.send_command('delete /unreserved *.cc',expected_map={
-            'Continue?\(Y/N\)|\[N\]': lambda session: session.send_line('y')})'''
-
     def update_firmware(self, remote_host, file_path, size_of_firmware=200000000):
         """Update firmware version on device by loading provided image, performs following steps (the steps are recommended by huawei Upgrade Guide):
 
