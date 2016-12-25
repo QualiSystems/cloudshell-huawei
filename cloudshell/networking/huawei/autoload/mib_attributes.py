@@ -141,10 +141,11 @@ class MibAttributes():
         return result
 
     def _get_resource_id(self, item_id):
+
         parent_id = int(self.entity_mib_table[item_id]['entPhysicalContainedIn'])
         if parent_id > 0 and parent_id in self.entity_mib_table:
             if re.search('container|backplane', self.entity_mib_table[parent_id]['entPhysicalClass']):
-                result = self.entity_mib_table[parent_id]['entPhysicalParentRelPos']
+                    result = self.entity_mib_table[parent_id]['entPhysicalParentRelPos']
             elif parent_id in self._excluded_models:
                 result = self._get_resource_id(parent_id)
             else:
@@ -245,6 +246,7 @@ class MibAttributes():
         """
 
         result = ''
+
         if item_id not in self.chassis_list:
             parent_id = int(self.entity_mib_table[item_id]['entPhysicalContainedIn'])
             if parent_id  in self._excluded_models:
@@ -387,6 +389,11 @@ class MibAttributes():
         for port in self.power_supply_list:
             port_id = self.entity_mib_table[port]['entPhysicalParentRelPos']
             parent_index = int(self.entity_mib_table[port]['entPhysicalContainedIn'])
+            if re.search('powerSupply', self.entity_mib_table[port]['entPhysicalClass']):
+                if re.search('container|backplane', self.entity_mib_table[parent_index]['entPhysicalClass']):
+                    port_id = self.entity_mib_table[parent_index]['entPhysicalParentRelPos']
+                    parent_index = int(self.entity_mib_table[parent_index]['entPhysicalContainedIn'])
+
             parent_id = int(self.entity_mib_table[parent_index]['entPhysicalParentRelPos'])
             chassis_id = self.get_relative_path(parent_index)
             relative_path = '{0}/PP{1}-{2}'.format(chassis_id, parent_id, port_id)
