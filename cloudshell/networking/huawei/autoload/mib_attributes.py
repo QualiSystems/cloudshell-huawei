@@ -1,5 +1,5 @@
 from cloudshell.snmp.quali_snmp import QualiMibTable
-from package.cloudshell.networking.huawei.vrp.structures.autoload_structure import HuaweiRootDevice, \
+from cloudshell.networking.huawei.vrp.structures.autoload_structure import HuaweiRootDevice, \
     GenericPortChannel,GenericPort,GenericPowerPort,GenericModule,GenericChassis
 
 import os,re
