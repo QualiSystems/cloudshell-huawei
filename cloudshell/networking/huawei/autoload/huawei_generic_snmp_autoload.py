@@ -156,20 +156,19 @@ class HuaweiGenericSNMPAutoload(MibAttributes):
         """
 
         self.logger.info('Start loading Switch Attributes')
-        result = {'system_name': self.snmp.get_property('SNMPv2-MIB', 'sysName', 0),
-                  'vendor': "huawei",
-                  'model': self._get_device_model(),
-                  'location': self.snmp.get_property('SNMPv2-MIB', 'sysLocation',0),
-                  'contact_name': self.snmp.get_property('SNMPv2-MIB', 'sysContact', 0),
-                  'system_desc':self.sys_descr,
-                  'os_version': ''}
+        result = {'System Name': self.snmp.get_property('SNMPv2-MIB', 'sysName', 0),
+                  'Vendor': "huawei",
+                  'Model': self._get_device_model(),
+                  'Location': self.snmp.get_property('SNMPv2-MIB', 'sysLocation',0),
+                  'Contact Name': self.snmp.get_property('SNMPv2-MIB', 'sysContact', 0)}
 
-        software_dscription = self.sys_descr
-        print software_dscription
-        match_version = re.search('Version\s+(?P<software_version>\S+)\S*\s+',
-                                  software_dscription)
+        match_version = re.search(r'Version\s+(?P<software_version>\S+)\S*\s+',
+                                  self.snmp.get_property('SNMPv2-MIB', 'sysDescr', 0))
+
         if match_version:
-            result['os_version'] = match_version.groupdict()['software_version'].replace(',', '')
+            result['OS Version'] = match_version.groupdict()['software_version'].replace(',', '')
+
+
         self.root_model.attributes = result
         root = self.root_model
         self.attributes.extend(root.get_attributes())

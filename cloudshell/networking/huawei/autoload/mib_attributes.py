@@ -364,7 +364,9 @@ class MibAttributes():
 
             unique_id = '{}.{}.{}'.format(self.resource_name, 'port', port)
 
-            port_object = GenericPort(name=interface_name, relative_address=self.relative_path[port],unique_id=unique_id, **attribute_map)
+            port_object = GenericPort(name=interface_name.replace('/', '-'), relative_address=self.relative_path[port],unique_id=unique_id, **attribute_map)
+
+
             self._add_resource(port_object)
             self.logger.info('Added ' + interface_name + ' Port')
         self.logger.info('Finished Loading Ports')
@@ -483,7 +485,10 @@ class MibAttributes():
                 unique_id = '{}.{}.{}'.format(self.resource_name, 'sub-module', module)
 
 
-            module_object = GenericModule(name=module_name, unique_id=unique_id,relative_address=module_id, **module_details_map)
+            module_object = GenericModule(name=module_name,resource_model = model, unique_id=unique_id,relative_address=module_id, **module_details_map)
+
+
+
             self._add_resource(module_object)
 
             self.logger.info('Added ' + self.entity_mib_table[module]['entPhysicalDescr'] + ' Module')
