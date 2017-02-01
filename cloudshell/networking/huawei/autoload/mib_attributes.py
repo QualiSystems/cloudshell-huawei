@@ -356,7 +356,7 @@ class MibAttributes():
             attribute_map = {'l2_protocol_type': interface_type,
                              'mac_address': if_table[self.port_mapping[port]]['ifPhysAddress'],
                              'mtu': if_table[self.port_mapping[port]]['ifMtu'],
-                             'bandwidth': if_table[self.port_mapping[port]]['ifSpeed'],
+                             'bandwidth': int(if_table[self.port_mapping[port]]['ifSpeed'])/1000000,
                              'port_description': self.snmp.get_property('IF-MIB', 'ifAlias', self.port_mapping[port]),
                              'adjacent': self._get_adjacent(self.port_mapping[port])}
             attribute_map.update(self._get_interface_details(self.port_mapping[port]))
