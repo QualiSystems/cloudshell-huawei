@@ -18,8 +18,8 @@ TFTP_GET = CommandTemplate('tftp {host} get {src} {dst}',action_map=OrderedDict(
                            '\(Y/N\)': lambda session, logger: session.send_line('y', logger),
                            r'[Oo]verwrit+e': lambda session, logger: session.send_line('y', logger)}))
 
-SNMP_ENABLE = CommandTemplate("snmp-agent")
-SNMP_DISABLE = CommandTemplate("undo snmp-agent")
+SNMP_ENABLE = CommandTemplate("snmp-agent community read {snmp_community}")
+SNMP_DISABLE = CommandTemplate("undo snmp-agent community read {snmp_community}")
 
 
 DISPLAY_CONFIG = CommandTemplate(
