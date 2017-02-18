@@ -62,7 +62,7 @@ class HuaweiSendCommandOperations(SendCommandInterface):
         return self._cli
 
     def send_command(self, command, expected_str=None, expected_map=None, timeout=30, retries=10,
-                     is_need_default_prompt=True, session=None,check_action_loop_detector=True):
+                     is_need_default_prompt=True, session=None,check_action_loop_detector=False):
         """Send command
 
         :param command: cli command
