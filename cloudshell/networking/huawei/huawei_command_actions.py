@@ -492,7 +492,9 @@ def enable_snmp(session, snmp_community, action_map=None, error_map=None):
     :param error_map: errors will be raised during executing commands, i.e. handles Invalid Commands errors
     """
     session.send_command(**SNMP_ENABLE.get_command(snmp_community=snmp_community,action_map=action_map, error_map=error_map))
-
+    session.send_command(
+        **COMMIT.get_command(action_map=action_map,
+                             error_map=error_map))
 
 def disable_snmp(session, snmp_community, action_map=None, error_map=None):
     """Disable SNMP on the device
@@ -503,7 +505,9 @@ def disable_snmp(session, snmp_community, action_map=None, error_map=None):
     :param error_map: errors will be raised during executing commands, i.e. handles Invalid Commands errors
     """
     session.send_command(**SNMP_DISABLE.get_command(action_map=action_map, error_map=error_map))
-
+    session.send_command(
+        **COMMIT.get_command(action_map=action_map,
+                             error_map=error_map))
 
 def get_port_name(logger, port):
     """Get port name from port resource full address
