@@ -2,7 +2,7 @@ import re
 import time
 
 from cloudshell.cli.command_mode_helper import CommandModeHelper
-from cloudshell.networking.huawei.huawei_command_modes import  EnableCommandMode, DefaultCommandMode, ConfigCommandMode
+from cloudshell.networking.huawei.huawei_command_modes import EnableCommandMode, DefaultCommandMode, ConfigCommandMode
 from cloudshell.networking.cli_handler_impl import CliHandlerImpl
 from cloudshell.shell.core.api_utils import decrypt_password_from_attribute
 
@@ -15,7 +15,7 @@ class HuaweiCliHandler(CliHandlerImpl):
             self.default_mode = modes[DefaultCommandMode]
             self.enable_mode = modes[EnableCommandMode]
             self.config_mode = modes[ConfigCommandMode]
-            self.logger=logger
+            self.logger = logger
         except Exception as e:
             print e
 
@@ -26,10 +26,9 @@ class HuaweiCliHandler(CliHandlerImpl):
         print logger
         self._enter_config_mode(session, self.logger)
         session.hardware_expect('user-interface console 0', ConfigCommandMode.PROMPT, logger)
-        session.hardware_expect('screen-length 0', ConfigCommandMode.PROMPT,logger)
+        session.hardware_expect('screen-length 0', ConfigCommandMode.PROMPT, logger)
         session.hardware_expect('quit', ConfigCommandMode.PROMPT, logger)
         session.hardware_expect('quit', DefaultCommandMode.PROMPT, logger)
-
 
     def _enter_config_mode(self, session, logger=None):
         max_retries = 5

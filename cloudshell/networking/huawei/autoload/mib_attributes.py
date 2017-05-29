@@ -1,14 +1,13 @@
 from cloudshell.snmp.quali_snmp import QualiMibTable
 from cloudshell.networking.huawei.vrp.structures.autoload_structure import HuaweiRootDevice, \
-    GenericPortChannel,GenericPort,GenericPowerPort,GenericModule,GenericChassis
+    GenericPortChannel, GenericPort, GenericPowerPort, GenericModule, GenericChassis
 
-import os,re
+import os, re
 
 
 class MibAttributes():
-
-#
-    def __init__(self, snmp_handler, logger, supported_os,resource_name):
+    #
+    def __init__(self, snmp_handler, logger, supported_os, resource_name):
         self.snmp = snmp_handler
         self.logger = logger
         self.module_list = []
@@ -34,19 +33,14 @@ class MibAttributes():
         self.root_model.set_system_name(self.snmp.get_property('SNMPv2-MIB', 'sysName', 0))
         self.root_model.set_system_desc(self.snmp.get(('SNMPv2-MIB', 'sysDescr'))['sysDescr'])
         self.snmp_object_id = self.snmp.get_property('SNMPv2-MIB', 'sysObjectID', 0)
-        self.if_descr = self.snmp.get_table('IF-MIB', 'ifDescr') #ifDescr
+        self.if_descr = self.snmp.get_table('IF-MIB', 'ifDescr')  # ifDescr
         self.sys_descr = self.snmp.get(('SNMPv2-MIB', 'sysDescr'))['sysDescr']
-        self.lldp_loc_port_desc,self.lldp_rem_table,self.dot3_stats_index,self.ip_v4_table,self.ip_v6_entry ,\
-        self.port_channel_ports ,self.sys_location ,self.sys_contact ,self.physical_parent_rel_pos = ['']*9
-
-
+        self.lldp_loc_port_desc, self.lldp_rem_table, self.dot3_stats_index, self.ip_v4_table, self.ip_v6_entry, \
+        self.port_channel_ports, self.sys_location, self.sys_contact, self.physical_parent_rel_pos = [''] * 9
 
     def load_huawei_mib(self):
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mibs'))
         self.snmp.update_mib_sources(path)
-
-
-
 
     def _load_snmp_objects_and_tables(self):
         """ Load all huawei  interface entries objects from MIB tables
@@ -54,16 +48,12 @@ class MibAttributes():
         :return: ''
         """
 
-
-
         self.logger.info('Start loading MIB objects: ')
-
-
 
         self.lldp_loc_port_desc = self.snmp.get_table('LLDP-MIB', 'lldpLocPortTable')
         self.lldp_rem_table = self.snmp.get_table('LLDP-MIB', 'lldpRemTable')
         self.dot3_stats_index = self.snmp.get_table('EtherLike-MIB', 'dot3StatsIndex')
-        self.ip_v4_table = self.snmp.get_table('RFC1213-MIB','ipAddrTable')
+        self.ip_v4_table = self.snmp.get_table('RFC1213-MIB', 'ipAddrTable')
         self.ip_v6_entry = self.snmp.get_table('IPV6-MIB', 'ipv6AddrTable')
         self.port_channel_ports = self.snmp.get_table('IEEE8023-LAG-MIB', 'dot3adAggPortAttachedAggID')
 
@@ -79,18 +69,18 @@ class MibAttributes():
 
         self.logger.info('MIB Tables loaded successfully')
 
-    def get_physical_model_name(self,key):
+    def get_physical_model_name(self, key):
         return self.snmp.get_property('ENTITY-MIB', 'entPhysicalModelName', key)
 
-    def get_physical_serial_name(self,key):
+    def get_physical_serial_name(self, key):
         return self.snmp.get_property('ENTITY-MIB', 'entPhysicalSerialNum', key)
 
-    def get_interface_duplex(self,key):
+    def get_interface_duplex(self, key):
 
-       res =  self.snmp.get_property('HUAWEI-PORT-MIB', 'hwEthernetDuplex', key)
-       return res
+        res = self.snmp.get_property('HUAWEI-PORT-MIB', 'hwEthernetDuplex', key)
+        return res
 
-    def get_physical_software_rev(self,key):
+    def get_physical_software_rev(self, key):
         return self.snmp.get_property('ENTITY-MIB', 'entPhysicalSoftwareRev', key)
 
     def get_module_list(self):
@@ -116,7 +106,6 @@ class MibAttributes():
                 else:
                     self._excluded_models.append(module)
 
-
     def _get_module_parents(self, module_id):
         result = []
         parent_id = int(self.entity_mib_table[module_id]['entPhysicalContainedIn'])
@@ -135,7 +124,7 @@ class MibAttributes():
         parent_id = int(self.entity_mib_table[item_id]['entPhysicalContainedIn'])
         if parent_id > 0 and parent_id in self.entity_mib_table:
             if re.search('container|backplane', self.entity_mib_table[parent_id]['entPhysicalClass']):
-                    result = self.entity_mib_table[parent_id]['entPhysicalParentRelPos']
+                result = self.entity_mib_table[parent_id]['entPhysicalParentRelPos']
             elif parent_id in self._excluded_models:
                 result = self._get_resource_id(parent_id)
             else:
@@ -167,7 +156,6 @@ class MibAttributes():
                              'associated_ports': self._get_associated_ports(key)}
             attribute_map.update(self._get_ip_interface_details(key))
             port_channel = GenericPortChannel(name=interface_model, relative_address=interface_id, **attribute_map)
-
 
             self._add_resource(port_channel)
 
@@ -227,7 +215,6 @@ class MibAttributes():
                     interface_details['duplex'] = 'Half'
         return interface_details
 
-
     def get_relative_path(self, item_id):
         """Build relative path for received item
 
@@ -239,7 +226,7 @@ class MibAttributes():
 
         if item_id not in self.chassis_list:
             parent_id = int(self.entity_mib_table[item_id]['entPhysicalContainedIn'])
-            if parent_id  in self._excluded_models:
+            if parent_id in self._excluded_models:
                 parent_id = int(self.entity_mib_table[parent_id]['entPhysicalContainedIn'])
             if parent_id not in self.relative_path.keys():
                 if parent_id in self.module_list:
@@ -254,8 +241,6 @@ class MibAttributes():
             result = self.relative_path[item_id]
 
         return result
-
-
 
     def _get_entity_table(self):
         """Read Entity-MIB and filter out device's structure and all it's elements, like ports, modules, chassis, etc.
@@ -333,7 +318,6 @@ class MibAttributes():
         self._filter_entity_table(result_dict)
         return result_dict
 
-
     def _get_ports_attributes(self):
         """Get resource details and attributes for every port in self.port_list
 
@@ -352,11 +336,10 @@ class MibAttributes():
                 continue
             interface_type = if_table[self.port_mapping[port]]['ifType'].replace('/', '').replace("'", '')
 
-
             attribute_map = {'l2_protocol_type': interface_type,
                              'mac_address': if_table[self.port_mapping[port]]['ifPhysAddress'],
                              'mtu': if_table[self.port_mapping[port]]['ifMtu'],
-                             'bandwidth': int(if_table[self.port_mapping[port]]['ifSpeed'])/1000000,
+                             'bandwidth': int(if_table[self.port_mapping[port]]['ifSpeed']) / 1000000,
                              'port_description': self.snmp.get_property('IF-MIB', 'ifAlias', self.port_mapping[port]),
                              'adjacent': self._get_adjacent(self.port_mapping[port])}
             attribute_map.update(self._get_interface_details(self.port_mapping[port]))
@@ -364,17 +347,16 @@ class MibAttributes():
 
             unique_id = '{}.{}.{}'.format(self.resource_name, 'port', port)
 
-            port_object = GenericPort(name=interface_name.replace('/', '-'), relative_address=self.relative_path[port],unique_id=unique_id, **attribute_map)
-
+            port_object = GenericPort(name=interface_name.replace('/', '-'), relative_address=self.relative_path[port],
+                                      unique_id=unique_id, **attribute_map)
 
             self._add_resource(port_object)
             self.logger.info('Added ' + interface_name + ' Port')
         self.logger.info('Finished Loading Ports')
 
-    def get_ent_alias_mapping_identifier(self,port_index):
+    def get_ent_alias_mapping_identifier(self, port_index):
         res = self.snmp.get(('ENTITY-MIB', 'entAliasMappingIdentifier', port_index, 1))
-        return  res
-
+        return res
 
     def _get_power_ports(self):
         """Get attributes for power ports provided in self.power_supply_list
@@ -402,12 +384,12 @@ class MibAttributes():
                             }
             unique_id = '{}.{}.{}'.format(self.resource_name, 'power_port', port)
 
-            power_port_object = GenericPowerPort(name=port_name, relative_address=relative_path,unique_id=unique_id, **port_details)
+            power_port_object = GenericPowerPort(name=port_name, relative_address=relative_path, unique_id=unique_id,
+                                                 **port_details)
             self._add_resource(power_port_object)
 
             self.logger.info('Added ' + self.entity_mib_table[port]['entPhysicalName'].strip(' \t\n\r') + ' Power Port')
         self.logger.info('Finished Loading Power Ports')
-
 
     def add_relative_paths(self):
         """Builds dictionary of relative paths for each module and port
@@ -418,7 +400,6 @@ class MibAttributes():
         port_list = list(self.port_list)
         module_list = list(self.module_list)
         for module in module_list:
-
 
             if module not in self.exclusion_list and module not in self._excluded_models:
                 self.relative_path[module] = self.get_relative_path(module) + '/' + self._get_resource_id(module)
@@ -450,14 +431,13 @@ class MibAttributes():
             name = 'Chassis {}'.format(chassis_id)
             unique_id = '{}.{}.{}'.format(self.resource_name, 'chassis', chassis)
             chassis_object = GenericChassis(name=name,
-                                          relative_address=relative_address,
-                                          unique_id=unique_id,
-                                          **chassis_details_map)
+                                            relative_address=relative_address,
+                                            unique_id=unique_id,
+                                            **chassis_details_map)
 
             self._add_resource(chassis_object)
             self.logger.info('Added ' + self.entity_mib_table[chassis]['entPhysicalDescr'] + ' Chass')
         self.logger.info('Finished Loading Modules')
-
 
     def _get_module_attributes(self):
         """Set attributes for all discovered modules
@@ -484,10 +464,8 @@ class MibAttributes():
                 model = 'Generic Sub Module'
                 unique_id = '{}.{}.{}'.format(self.resource_name, 'sub-module', module)
 
-
-            module_object = GenericModule(name=module_name,resource_model = model, unique_id=unique_id,relative_address=module_id, **module_details_map)
-
-
+            module_object = GenericModule(name=module_name, resource_model=model, unique_id=unique_id,
+                                          relative_address=module_id, **module_details_map)
 
             self._add_resource(module_object)
 
@@ -516,7 +494,6 @@ class MibAttributes():
                     port_id = int(interface['suffix'])
                     break
         return port_id
-
 
     def _get_adjacent(self, interface_id):
         """Get connected device interface and device name to the specified port id, using lldp protocols (or cdp)

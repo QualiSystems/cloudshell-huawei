@@ -1,4 +1,3 @@
-
 from cloudshell.cli.command_mode import CommandMode
 
 
@@ -6,7 +5,6 @@ class DefaultCommandMode(CommandMode):
     PROMPT = '<.*?>'
     ENTER_COMMAND = ''
     EXIT_COMMAND = 'quit'
-
 
     def __init__(self, context):
         """
@@ -21,7 +19,7 @@ class DefaultCommandMode(CommandMode):
 
 class EnableCommandMode(CommandMode):
     PROMPT = r'<.*?>'
-    ENTER_COMMAND = '' # system-view
+    ENTER_COMMAND = ''  # system-view
     EXIT_COMMAND = 'quit'
 
     def __init__(self, context):

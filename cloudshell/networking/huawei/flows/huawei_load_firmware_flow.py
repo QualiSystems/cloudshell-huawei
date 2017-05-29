@@ -3,7 +3,7 @@
 
 import re
 from cloudshell.networking.huawei.huawei_command_actions import update_firmware, \
-    get_current_os_version,get_current_boot_config
+    get_current_os_version, get_current_boot_config
 
 from cloudshell.networking.devices.flows.action_flows import LoadFirmwareFlow
 from cloudshell.networking.devices.networking_utils import UrlParser
@@ -28,7 +28,7 @@ class HuaweiLoadFirmwareFlow(LoadFirmwareFlow):
             raise Exception(self.__class__.__name__, "Unable to find firmware file")
         with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as enable_session:
             with enable_session.enter_mode(self._cli_handler.config_mode) as config_session:
-                update_firmware(config_session,path, firmware_file_name,self._logger)
+                update_firmware(config_session, path, firmware_file_name, self._logger)
             output = get_current_boot_config(session=enable_session)
             is_boot_firmware = output.find(firmware_file_name) != -1
             if not is_boot_firmware:

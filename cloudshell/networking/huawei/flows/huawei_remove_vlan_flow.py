@@ -6,6 +6,7 @@ from cloudshell.networking.huawei.huawei_command_actions import get_port_name, g
 from cloudshell.networking.devices.flows.action_flows import RemoveVlanFlow
 from cloudshell.networking.huawei.command_templates.huawei_configure_vlan_template import *
 
+
 class HuaweiRemoveVlanFlow(RemoveVlanFlow):
     def __init__(self, cli_handler, logger):
         super(HuaweiRemoveVlanFlow, self).__init__(cli_handler, logger)
@@ -28,9 +29,9 @@ class HuaweiRemoveVlanFlow(RemoveVlanFlow):
             with session.enter_mode(self._cli_handler.config_mode) as config_sesison:
                 config_sesison.send_command(**CONFIGURE_INTERFACE.get_command(port_name=port_name))
                 clean_current_configuration_on_interface(config_session=config_sesison,
-                                                  current_config=current_config,
-                                                  logger=self._logger,
-                                                  port_name=port_name)
+                                                         current_config=current_config,
+                                                         logger=self._logger,
+                                                         port_name=port_name)
 
             current_config = get_current_interface_config(session,
                                                           port_name=port_name)
