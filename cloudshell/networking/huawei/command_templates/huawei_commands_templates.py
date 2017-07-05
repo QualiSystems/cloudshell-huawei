@@ -18,8 +18,12 @@ TFTP_GET = CommandTemplate('tftp {host} get {src} {dst}', action_map=OrderedDict
     '\(Y/N\)': lambda session, logger: session.send_line('y', logger),
     r'[Oo]verwrit+e': lambda session, logger: session.send_line('y', logger)}))
 
-SNMP_ENABLE = CommandTemplate("snmp-agent community read {snmp_community}")
-SNMP_DISABLE = CommandTemplate("undo snmp-agent community read {snmp_community}")
+ENABLE_SNMP = CommandTemplate("snmp-agent sys-info version v2c")
+ENABLE_SNMP_COMMUNITY = CommandTemplate("snmp-agent community read {snmp_community}")
+DISABLE_SNMP_COMMUNITY = CommandTemplate("undo snmp-agent community read {snmp_community}")
+DISABLE_SNMP = CommandTemplate("undo snmp-agent sys-info version v2c",
+                               action_map=OrderedDict({'\[Y/N\]': lambda session, logger: session.send_line('y', logger),
+                                                       '\(Y/N\)': lambda session, logger: session.send_line('y', logger)}))
 
 DISPLAY_CONFIG = CommandTemplate(
     'display current-configuration [interface {port_name}] [ | include boot{boot}] [ | include snmp-server community{snmp}]')
@@ -36,6 +40,4 @@ REBOOT = CommandTemplate('reboot fast', action_map=OrderedDict({'Continue\?\[Y/N
 session.send_line('y', logger)}))
 
 STARTUP_SYSTEM_SOFTWARE = CommandTemplate('startup system-software {dst_file}',
-                                          action_map=OrderedDict({'Continue\?\[Y/N\]': lambda session,
-                                                                                              logger: session.send_line(
-                                              'y', logger)}))
+                                          action_map=OrderedDict({'Continue\?\[Y/N\]': lambda session, logger: session.send_line('y', logger)}))

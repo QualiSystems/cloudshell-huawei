@@ -32,7 +32,7 @@ def create_vlan(session, logger, vlan_range, action_map=None, error_map=None):
             if '-' in vlan:
                 ranges_leafs = vlan.split('-')
 
-                if (int(ranges_leafs[0]) > int(ranges_leafs[1])):
+                if int(ranges_leafs[0]) > int(ranges_leafs[1]):
                     temp = ranges_leafs[0]
                     ranges_leafs[0] = ranges_leafs[1]
                     ranges_leafs[1] = temp
@@ -77,7 +77,7 @@ def set_vlan_to_interface(config_session, logger, vlan_range, port_mode, port_na
     is_range = True if '-' in vlan_range else False
 
     if port_mode == 'trunk':
-        if (is_range):
+        if is_range:
             splited_vlan_range = vlan_range.split(',')
 
             if (len(splited_vlan_range) > 1) or is_range:
@@ -86,7 +86,7 @@ def set_vlan_to_interface(config_session, logger, vlan_range, port_mode, port_na
                     if '-' in vlan:
                         ranges_leafs = vlan.split('-')
 
-                        if (int(ranges_leafs[0]) > int(ranges_leafs[1])):
+                        if int(ranges_leafs[0]) > int(ranges_leafs[1]):
                             temp = ranges_leafs[0]
                             ranges_leafs[0] = ranges_leafs[1]
                             ranges_leafs[1] = temp
@@ -136,26 +136,20 @@ def set_vlan_to_interface(config_session, logger, vlan_range, port_mode, port_na
 
 def clean_current_configuration_on_interface(config_session, logger, current_config, port_name, action_map=None,
                                              error_map=None):
-    """
+    """ Clean configuration on interface """
 
-    :param :
-    :return: success message
-    :rtype: string
-    """
-    line_to_remove = None
     action_map = {'[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]': lambda session: session.send_line('yes'),
                   '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
+
     for line in current_config.splitlines():
-        if re.search('^\s*port default vlan\s+|^\s*port link-type\s+|^\s*port trunk allow-pass vlan\s+', line):
-            if (not re.search('^\s*port trunk allow-pass vlan\s+', line)):
-                line_to_remove = re.sub('\s+\d+[-\d+,]+|trunk|access', '', line)
-            if not line_to_remove:
-                line_to_remove = line
+        line = line.strip()
+        if re.search(r"^port default vlan\s+|^port link-type\s+|^port trunk allow-pass vlan\s+", line):
+            if not re.search("^port trunk allow-pass vlan\s+", line):
+                line = re.sub(r"\s+\d+[-\d+,]*|trunk|access", "", line)
 
-            config_session.send_command(
-                **UNDO.get_command(command=line_to_remove, action_map=action_map, error_map=error_map))
+            config_session.send_command(**UNDO.get_command(command=line, action_map=action_map, error_map=error_map))
 
-    return 'Finished configuration of ethernet interface!'
+    return "Finished configuration of ethernet interface!"
 
 
 def reboot(session, logger):
@@ -199,13 +193,20 @@ def save_configuration(session, logger, configuration_type, destination, vrf=Non
 
     destination_filename = destination
     logger.info('configuration destination filename is {0}'.format(destination_filename))
-    if destination.startswith('ftp://') or destination.startswith('tftp://'): remote = True
+    if destination.startswith('ftp://') or destination.startswith('tftp://'):
+        remote = True
 
-    if remote: output = upload_to_remote_server(session=session, destination_file=destination_filename,
-                                                configuration_type=configuration_type, vrf=vrf)
+    if remote:
+        output = upload_to_remote_server(session=session,
+                                         destination_file=destination_filename,
+                                         configuration_type=configuration_type,
+                                         vrf=vrf)
 
-    if remote == False: output = copy_configuration_inside_devices_filesystem(
-        session=session, destination_file=destination_filename, configuration_type=configuration_type, vrf=vrf)
+    else:
+        output = copy_configuration_inside_devices_filesystem(session=session,
+                                                              destination_file=destination_filename,
+                                                              configuration_type=configuration_type,
+                                                              vrf=vrf)
 
     status_match = re.search(r'\d+ bytes copied|copied.*[\[\(].*[0-9]* bytes.*[\)\]]|[Cc]opy complete', output,
                              re.IGNORECASE)
@@ -267,42 +268,42 @@ def upload_to_remote_server(session, destination_file, configuration_type, vrf):
 def get_configuration_file_name_from_device(session, configuration_type):
     response = session.send_command(**DISPLAY_STARTUP.get_command())
 
-    if (configuration_type == 'startup'):
+    if configuration_type == 'startup':
         splitted_response = response.split("\n  ")
-        if (len(splitted_response) <= 0): raise Exception('huawei',
-                                                          'Upload to remote server method: no source file for startup!')
+        if len(splitted_response) <= 0:
+            raise Exception('huawei', 'Upload to remote server method: no source file for startup!')
 
         source_file_type = splitted_response[5].split("     ")
-        if (len(source_file_type) <= 0): raise Exception('huawei',
-                                                         'Upload to remote server method: no source file for startup!')
+        if len(source_file_type) <= 0:
+            raise Exception('huawei', 'Upload to remote server method: no source file for startup!')
 
-        if ("Next startup saved-configuration file:" in source_file_type[0]):
+        if "Next startup saved-configuration file:" in source_file_type[0]:
             source_file = source_file_type[1]
         else:
             raise Exception('huawei', 'Upload to remote server method: no source file for startup!')
 
-    if (configuration_type == 'running'):
+    if configuration_type == 'running':
 
         splitted_response = response.split("\n  ")
-        if (len(splitted_response) <= 0): raise Exception('huawei',
-                                                          'Upload to remote server method: no source file for startup!')
+        if len(splitted_response) <= 0:
+            raise Exception('huawei', 'Upload to remote server method: no source file for startup!')
 
         source_file_type = splitted_response[4].split("     ")
 
-        if (len(source_file_type) <= 0): raise Exception('huawei',
-                                                         'Upload to remote server method: no source file for startup!')
+        if len(source_file_type) <= 0:
+            raise Exception('huawei', 'Upload to remote server method: no source file for startup!')
 
-        if ("Startup saved-configuration file:" in source_file_type[0]):
+        if "Startup saved-configuration file:" in source_file_type[0]:
 
             source_file = source_file_type[1]
-            if (source_file == ''):
+            if source_file == '':
                 try:
                     source_file = source_file_type[2]
                 except:
                     raise Exception('huawei', 'Upload to remote server method: no source file for running!')
-            if (source_file == 'NULL'):
+            if source_file == 'NULL':
                 source_file_type = splitted_response[5].split("     ")
-                if ("Next startup saved-configuration file:" in source_file_type[0]):
+                if "Next startup saved-configuration file:" in source_file_type[0]:
                     source_file = source_file_type[1]
                 else:
                     raise Exception('huawei', 'Upload to remote server method: no source file for running!')
@@ -334,7 +335,7 @@ def restore_configuration(session, logger, source_path, configuration_type, acti
     if (remote): output, source_path = download_config_from_remote_server(session, source_path, dst_path)
 
     if (restore_method.lower() == 'override') and (
-            configuration_type.lower() == 'startup' or configuration_type.lower() == 'running'):
+                    configuration_type.lower() == 'startup' or configuration_type.lower() == 'running'):
 
         response = session.send_command(**DISPLAY_STARTUP.get_command())
         splitted_response = response.split("\n  ")
@@ -491,25 +492,26 @@ def enable_snmp(session, snmp_community, action_map=None, error_map=None):
     :param action_map: actions will be taken during executing commands, i.e. handles yes/no prompts
     :param error_map: errors will be raised during executing commands, i.e. handles Invalid Commands errors
     """
-    session.send_command(
-        **SNMP_ENABLE.get_command(snmp_community=snmp_community, action_map=action_map, error_map=error_map))
-    session.send_command(
-        **COMMIT.get_command(action_map=action_map,
-                             error_map=error_map))
+
+    session.send_command(**ENABLE_SNMP.get_command(action_map=action_map, error_map=error_map))
+    session.send_command(**ENABLE_SNMP_COMMUNITY.get_command(snmp_community=snmp_community,
+                                                             action_map=action_map,
+                                                             error_map=error_map))
+    session.send_command(**COMMIT.get_command(action_map=action_map, error_map=error_map))
 
 
 def disable_snmp(session, snmp_community, action_map=None, error_map=None):
     """Disable SNMP on the device
 
-    :param session: current session 
+    :param session: current session
     :param snmp_community: community name
     :param action_map: actions will be taken during executing commands, i.e. handles yes/no prompts
     :param error_map: errors will be raised during executing commands, i.e. handles Invalid Commands errors
     """
-    session.send_command(**SNMP_DISABLE.get_command(action_map=action_map, error_map=error_map))
-    session.send_command(
-        **COMMIT.get_command(action_map=action_map,
-                             error_map=error_map))
+    session.send_command(**DISABLE_SNMP_COMMUNITY.get_command(snmp_community=snmp_community,
+                                                              action_map=action_map,
+                                                              error_map=error_map))
+    session.send_command(**COMMIT.get_command(action_map=action_map, error_map=error_map))
 
 
 def get_port_name(logger, port):
