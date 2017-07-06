@@ -25,6 +25,8 @@ class HuaweiAutoloadFlow(BaseFlow):
 
         # try:
         if bool_enable_snmp and isinstance(snmp_parameters, SNMPV2Parameters):
+            if len(snmp_parameters.snmp_community) < 8:  # specific limitation fo Huawei Devices
+                raise Exception(self.__class__.__name__, "SNMP Community length should be at least 8 symbols")
             with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as session:
                 with session.enter_mode(self._cli_handler.config_mode) as config_session:
                     enable_snmp(config_session, snmp_parameters.snmp_community)
@@ -36,8 +38,7 @@ class HuaweiAutoloadFlow(BaseFlow):
             with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
                 disable_snmp(config_session, snmp_parameters.snmp_community)
         else:
-            self._logger.info(
-                "Disable SNMP skipped: Disable SNMP attribute set to False and/or SNMP Version = v3")
+            self._logger.info("Disable SNMP skipped: Disable SNMP attribute set to False and/or SNMP Version = v3")
         # except Exception as err:
         #    print err
         return result
