@@ -481,7 +481,7 @@ def verify_interface_configured(vlan_range, current_config):
     :return: True or False
     """
 
-    return str(vlan_range) in current_config
+    return "vlan {vlan_range}".format(vlan_range=vlan_range) in current_config
 
 
 def enable_snmp(session, snmp_community, action_map=None, error_map=None):
