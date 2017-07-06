@@ -1,7 +1,6 @@
 from collections import OrderedDict
 from cloudshell.cli.command_template.command_template import CommandTemplate
 
-
 CONFIGURE_INTERFACE = CommandTemplate('interface {port_name}')
 
 CONFIGURE_VLAN = CommandTemplate('vlan {vlan_id}',
@@ -14,7 +13,6 @@ UNDO_SHUTDOWN = CommandTemplate('undo shutdown')
 UNDO = CommandTemplate('undo {command}')
 
 IP_ADDRESS = CommandTemplate('ip address {0}')
-
 
 DISPLAY_RUNNING = CommandTemplate('display current-configuration [interface {port_name}]')
 
@@ -39,4 +37,3 @@ PORT_DEFAULT_VLAN = CommandTemplate('port default vlan {vlan_id}')
 SPEED = CommandTemplate('speed')
 
 COMMIT = CommandTemplate('commit')
-

@@ -13,7 +13,6 @@ class HuaweiAutoloadFlow(BaseFlow):
         self._resource_name = resource_name
         self._huawei_autoload_class = autoload_class
 
-
     def execute_flow(self, bool_enable_snmp, bool_disable_snmp, snmp_parameters, supported_os):
         """Facilitate SNMP autoload, enable and disable SNMP if needed.
 
@@ -24,11 +23,13 @@ class HuaweiAutoloadFlow(BaseFlow):
         :return: AutoloadDetails
         """
 
-        #try:
+        # try:
         if bool_enable_snmp and isinstance(snmp_parameters, SNMPV2Parameters):
+            if len(snmp_parameters.snmp_community) < 8:  # specific limitation fo Huawei Devices
+                raise Exception(self.__class__.__name__, "SNMP Community length should be at least 8 symbols")
             with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as session:
                 with session.enter_mode(self._cli_handler.config_mode) as config_session:
-                        enable_snmp(config_session, snmp_parameters.snmp_community)
+                    enable_snmp(config_session, snmp_parameters.snmp_community)
         else:
             self._logger.info("Enable SNMP skipped: Enable SNMP attribute set to False or SNMP Version = v3")
         result = self.run_autoload(snmp_parameters, supported_os)
@@ -37,9 +38,8 @@ class HuaweiAutoloadFlow(BaseFlow):
             with self._cli_handler.get_cli_service(self._cli_handler.config_mode) as config_session:
                 disable_snmp(config_session, snmp_parameters.snmp_community)
         else:
-            self._logger.info(
-                "Disable SNMP skipped: Disable SNMP attribute set to False and/or SNMP Version = v3")
-        #except Exception as err:
+            self._logger.info("Disable SNMP skipped: Disable SNMP attribute set to False and/or SNMP Version = v3")
+        # except Exception as err:
         #    print err
         return result
 
@@ -53,7 +53,7 @@ class HuaweiAutoloadFlow(BaseFlow):
 
         snmp_handler = QualiSnmp(snmp_parameters, self._logger)
         snmp_command_actions = self._huawei_autoload_class(snmp_handler=snmp_handler,
-                                                          logger=self._logger,
-                                                          supported_os=supported_os,
-                                                          resource_name=self._resource_name)
+                                                           logger=self._logger,
+                                                           supported_os=supported_os,
+                                                           resource_name=self._resource_name)
         return snmp_command_actions.discover()

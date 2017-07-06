@@ -10,6 +10,6 @@ class HuaweiAutoloadRunner(AutoloadRunner):
         self._cli_handler = HuaweiCliHandler(cli, context, logger, api)
         self._logger = logger
         self._autoload_flow = HuaweiAutoloadFlow(cli_handler=self._cli_handler,
-                                                autoload_class=HuaweiGenericSNMPAutoload,
-                                                logger=logger,
-                                                resource_name=self._resource_name)
+                                                 autoload_class=HuaweiGenericSNMPAutoload,
+                                                 logger=logger,
+                                                 resource_name=self._resource_name)

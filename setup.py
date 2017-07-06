@@ -19,7 +19,6 @@ setup(
     install_requires=required,
     tests_require=required_for_tests,
     version=version_from_file,
-	package_data={'': ['*.txt']},
+    package_data={'': ['*.txt']},
     description='QualiSystems networking huawei specific package',
-    include_package_data = True
-)
+    include_package_data=True)

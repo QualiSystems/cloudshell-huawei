@@ -23,7 +23,7 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
         action_map = self._prepare_action_map(source_file=configuration_type, destination_file=folder_path)
         with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as session:
             save_configuration(session, self._logger, configuration_type, folder_path,
-                 vrf_management_name, action_map)
+                               vrf_management_name, action_map)
 
     def _prepare_action_map(self, source_file, destination_file):
         action_map = OrderedDict()

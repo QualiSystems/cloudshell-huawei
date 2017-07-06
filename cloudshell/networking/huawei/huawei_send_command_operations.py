@@ -62,7 +62,7 @@ class HuaweiSendCommandOperations(SendCommandInterface):
         return self._cli
 
     def send_command(self, command, expected_str=None, expected_map=None, timeout=30, retries=10,
-                     is_need_default_prompt=True, session=None,check_action_loop_detector=False):
+                     is_need_default_prompt=True, session=None, check_action_loop_detector=False):
         """Send command
 
         :param command: cli command
@@ -79,15 +79,17 @@ class HuaweiSendCommandOperations(SendCommandInterface):
         if session:
             response = self.cli.send_command(command=command, expected_str=expected_str, expected_map=expected_map,
                                              timeout=timeout, retries=retries,
-                                             is_need_default_prompt=is_need_default_prompt, session=session,check_action_loop_detector=check_action_loop_detector)
+                                             is_need_default_prompt=is_need_default_prompt, session=session,
+                                             check_action_loop_detector=check_action_loop_detector)
         else:
             response = self.cli.send_command(command=command, expected_str=expected_str, expected_map=expected_map,
                                              timeout=timeout, retries=retries,
-                                             is_need_default_prompt=is_need_default_prompt,check_action_loop_detector=check_action_loop_detector)
+                                             is_need_default_prompt=is_need_default_prompt,
+                                             check_action_loop_detector=check_action_loop_detector)
         return response
 
     def send_config_command(self, command, expected_str=None, expected_map=None, timeout=30, retries=10,
-                            is_need_default_prompt=True,check_action_loop_detector=True):
+                            is_need_default_prompt=True, check_action_loop_detector=True):
         """Send list of config commands
 
         :param command: list of commands
@@ -96,8 +98,5 @@ class HuaweiSendCommandOperations(SendCommandInterface):
         """
 
         return self.cli.send_config_command(command, expected_str, expected_map, timeout, retries,
-                                            is_need_default_prompt,check_action_loop_detector=check_action_loop_detector)
-
-
-
-
+                                            is_need_default_prompt,
+                                            check_action_loop_detector=check_action_loop_detector)

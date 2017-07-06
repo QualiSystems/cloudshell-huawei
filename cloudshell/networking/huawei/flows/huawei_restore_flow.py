@@ -27,12 +27,12 @@ class HuaweiRestoreFlow(RestoreConfigurationFlow):
             copy_action_map = self._prepare_action_map(path, configuration_type)
             if restore_method == "override":
                 output = restore_configuration(session=enable_session, logger=self._logger,
-                                  source_path=path, configuration_type=configuration_type,restore_method=restore_method,action_map=copy_action_map)
+                                               source_path=path, configuration_type=configuration_type,
+                                               restore_method=restore_method, action_map=copy_action_map)
 
             else:
                 raise Exception('huawei', "huawei do no yet support append operations on configuration files")
         return output
-
 
     def _prepare_action_map(self, source_file, destination_file):
         action_map = OrderedDict()
@@ -45,7 +45,7 @@ class HuaweiRestoreFlow(RestoreConfigurationFlow):
                 source_file_data_list[-1])] = lambda session, logger: session.send_line("", logger)
 
             action_map[r"[\[\(]{}[\)\]]".format(destination_file_name)] = lambda session, logger: session.send_line("",
-                                                                                                               logger)
+                                                                                                                    logger)
         else:
             source_file_name = destination_file.split("/")[-1]
             destination_file_name = source_file.split("/")[-1]

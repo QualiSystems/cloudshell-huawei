@@ -9,7 +9,7 @@ class HuaweiConfigurationRunner(ConfigurationRunner):
         super(HuaweiConfigurationRunner, self).__init__(logger, context, api)
         self._cli_handler = HuaweiCliHandler(cli, context, logger, api)
         self._save_flow = HuaweiSaveFlow(cli_handler=self._cli_handler,
-                                        logger=self._logger)
+                                         logger=self._logger)
         self._restore_flow = HuaweiRestoreFlow(cli_handler=self._cli_handler,
-                                              logger=self._logger)
+                                               logger=self._logger)
         self.file_system = 'flash:'

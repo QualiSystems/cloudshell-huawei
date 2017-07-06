@@ -18,6 +18,6 @@ class HuaweiConnectivityRunner(ConnectivityRunner):
         super(HuaweiConnectivityRunner, self).__init__(logger)
         self._cli_handler = HuaweiCliHandler(cli, context, logger, api)
         self.add_vlan_flow = HuaweiAddVlanFlow(cli_handler=self._cli_handler,
-                                              logger=self._logger)
+                                               logger=self._logger)
         self.remove_vlan_flow = HuaweiRemoveVlanFlow(cli_handler=self._cli_handler,
-                                                    logger=self._logger)
+                                                     logger=self._logger)

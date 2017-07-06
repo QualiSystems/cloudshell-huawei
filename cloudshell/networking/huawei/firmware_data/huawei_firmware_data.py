@@ -9,7 +9,6 @@ class HuaweiFirmwareData(FirmwareData):
         """
         file_path_parts = file_path.split('/')
 
-
         firmware_title = file_path_parts[-1]
         firmware_title_parts = firmware_title.split('.')
 

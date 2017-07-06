@@ -15,7 +15,8 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         self._cli = cli
         self._logger = logger
         self._api = api
-        if(resource_name is not None): self.resource_name = resource_name
+        if (resource_name is not None):
+            self.resource_name = resource_name
         else:
             try:
                 self.resource_name = get_resource_name()
@@ -61,6 +62,7 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         result = self.cli.send_command_list(command_list, expected_map=expected_map)
         self.cli.exit_configuration_mode()
         return result
+
     '''
     def _get_resource_full_name(self, port_resource_address, resource_details_map):
         """Recursively search for port name on the resource
@@ -126,7 +128,6 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         """
         add_templates(VLAN_COMMANDS_TEMPLATES)
 
-
     def add_vlan(self, vlan_range, port, port_mode, qnq, ctag):
         """Configure specified vlan range in specified switchport mode on provided port
 
@@ -145,13 +146,12 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
         self._load_vlan_command_templates()
         self.validate_vlan_methods_incoming_parameters(vlan_range, port, port_mode)
         port_name = self.get_port_name(port)
-        print "port_name",port_name
+        print "port_name", port_name
         self.logger.info('Start vlan configuration: vlan {0}; interface {1}.'.format(vlan_range, port_name))
         vlan_config_actions = OrderedDict()
         interface_config_actions = OrderedDict()
         if 'access' in port_mode:
             vlan_config_actions['configure_vlan'] = vlan_range
-
 
         self.configure_vlan(vlan_config_actions)
         self.cli.exit_configuration_mode()
@@ -166,11 +166,11 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
             interface_config_actions['port_mode_trunk'] = []
         elif 'trunk' in port_mode and vlan_range != '':
             interface_config_actions['port_mode_trunk'] = []
-            ranges_list=[]
+            ranges_list = []
             is_range = True if '-' in vlan_range else False
             splited_vlan_range = vlan_range.split(',')
 
-            if(len(splited_vlan_range)>1) or is_range:
+            if (len(splited_vlan_range) > 1) or is_range:
                 for vlan in splited_vlan_range:
 
                     if '-' in vlan:
@@ -182,10 +182,10 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
                                                 'Only one vlan could be assigned to the interface in Trunk mode')
                         if (int(ranges_leafs[0]) > int(ranges_leafs[1])):
                             temp = ranges_leafs[0]
-                            ranges_leafs[0]  = ranges_leafs[1]
+                            ranges_leafs[0] = ranges_leafs[1]
                             ranges_leafs[1] = temp
 
-                        ranges_list = ranges_list+(range(int(ranges_leafs[0]),int(ranges_leafs[1])+1))
+                        ranges_list = ranges_list + (range(int(ranges_leafs[0]), int(ranges_leafs[1]) + 1))
                     else:
                         result = validateVlanNumber(vlan)
                         if not result:
@@ -294,14 +294,15 @@ class HuaweiConnectivityOperations(ConnectivityOperations):
 
         for line in current_config.splitlines():
             if re.search('^\s*port default vlan\s+|^\s*port link-type\s+|^\s*port trunk allow-pass vlan\s+', line):
-                if(not re.search('^\s*port trunk allow-pass vlan\s+', line)):
+                if (not re.search('^\s*port trunk allow-pass vlan\s+', line)):
                     line_to_remove = re.sub('\s+\d+[-\d+,]+|trunk|access', '', line)
                 if not line_to_remove:
                     line_to_remove = line
                 commands_list.insert(1, 'undo {0}'.format(line_to_remove.strip(' ')))
 
-        expected_map = {'[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]': lambda session: session.send_line('yes'),
-                        '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
+        expected_map = {
+            '[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]': lambda session: session.send_line('yes'),
+            '[\[\(][Yy]/[Nn][\)\]]': lambda session: session.send_line('y')}
         output = self.send_config_command_list(commands_list, expected_map=expected_map)
         print output
         if re.search('[Cc]ommand rejected.*', output):

@@ -1,2 +1,0 @@
-cloudshell-networking>=4.0,<4.1
-cloudshell-networking-devices>=1.0,<1.1
