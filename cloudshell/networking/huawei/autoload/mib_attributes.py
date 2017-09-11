@@ -185,12 +185,12 @@ class MibAttributes():
         if self.ip_v4_table and len(self.ip_v4_table) > 1:
             for key, value in self.ip_v4_table.iteritems():
                 if 'ipAdEntIfIndex' in value and int(value['ipAdEntIfIndex']) == port_index:
-                    interface_details['IPv4 Address'] = key
+                    interface_details['ipv4_address'] = key
                 break
         if self.ip_v6_entry and len(self.ip_v6_entry) > 1:
             for key, value in self.ip_v6_entry.iteritems():
                 if 'ipAdEntIfIndex' in value and int(value['ipAdEntIfIndex']) == port_index:
-                    interface_details['IPv6 Address'] = key
+                    interface_details['ipv6_address'] = key
                 break
         return interface_details
 
