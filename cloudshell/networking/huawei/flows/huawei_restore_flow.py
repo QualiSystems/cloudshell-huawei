@@ -1,19 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from collections import OrderedDict
-import re
-from cloudshell.networking.huawei.huawei_command_actions import restore_configuration
-from cloudshell.networking.devices.flows.action_flows import RestoreConfigurationFlow
+from cloudshell.devices.flows.action_flows import RestoreConfigurationFlow
+from cloudshell.devices.networking_utils import UrlParser
+from cloudshell.networking.huawei.command_actions.system_actions import SystemActions
+from cloudshell.networking.huawei.command_actions.save_restore_actions import SaveRestoreActions
 
 
 class HuaweiRestoreFlow(RestoreConfigurationFlow):
-    STARTUP_LOCATION = "nvram:startup_config"
+    FILE_SYSTEM = "flash"
 
     def __init__(self, cli_handler, logger):
         super(HuaweiRestoreFlow, self).__init__(cli_handler, logger)
 
-    def execute_flow(self, path, configuration_type, restore_method, vrf_management_name):
+    def execute_flow(self, path, configuration_type, restore_method, vrf_management_name=None):
         """ Execute flow which save selected file to the provided destination
 
         :param path: the path to the configuration file, including the configuration file name
@@ -23,48 +23,40 @@ class HuaweiRestoreFlow(RestoreConfigurationFlow):
         :param vrf_management_name: Virtual Routing and Forwarding Name
         """
 
+        if not configuration_type:
+            configuration_type = "running-config"
+        elif "-config" not in configuration_type:
+            configuration_type = configuration_type.lower() + "-config"
+
+        if configuration_type not in ["running-config", "startup-config"]:
+            raise Exception(self.__class__.__name__,
+                            "Device doesn't support restoring '{}' configuration type".format(configuration_type))
+
+        if not restore_method:
+            restore_method = "override"
+
+        url = UrlParser().parse_url(path)
+
         with self._cli_handler.get_cli_service(self._cli_handler.enable_mode) as enable_session:
-            copy_action_map = self._prepare_action_map(path, configuration_type)
+            system_action = SystemActions(enable_session, self._logger)
+            restore_action = SaveRestoreActions(enable_session, self._logger)
+
             if restore_method == "override":
-                output = restore_configuration(session=enable_session, logger=self._logger,
-                                               source_path=path, configuration_type=configuration_type,
-                                               restore_method=restore_method, action_map=copy_action_map)
+                dst_file = "{file_system}:/{file_name}".format(file_system=self.FILE_SYSTEM,
+                                                               file_name=url.get(UrlParser.FILENAME))
+
+                scheme = url.get(UrlParser.SCHEME).lower()
+                if not scheme or scheme == self.FILE_SYSTEM:
+                    restore_action.setup_startup_config(path)
+                elif scheme in ["ftp", "tftp"]:
+                    restore_action.get_file(server_address=url.get(UrlParser.HOSTNAME),
+                                            src_file="{path}/{file}".format(path=url.get(UrlParser.PATH).rstrip("/"),
+                                                                            file=url.get(UrlParser.FILENAME)),
+                                            dst_file=dst_file)
+                    restore_action.setup_startup_config(dst_file)
+
+                if configuration_type == "running-config":
+                    system_action.reboot()
 
             else:
-                raise Exception('huawei', "huawei do no yet support append operations on configuration files")
-        return output
-
-    def _prepare_action_map(self, source_file, destination_file):
-        action_map = OrderedDict()
-        host = None
-        if "://" in source_file:
-            source_file_data_list = re.sub("/+", "/", source_file).split("/")
-            host = source_file_data_list[1]
-            destination_file_name = destination_file.split("/")[-1]
-            action_map[r"[\[\(]{}[\)\]]".format(
-                source_file_data_list[-1])] = lambda session, logger: session.send_line("", logger)
-
-            action_map[r"[\[\(]{}[\)\]]".format(destination_file_name)] = lambda session, logger: session.send_line("",
-                                                                                                                    logger)
-        else:
-            source_file_name = destination_file.split("/")[-1]
-            destination_file_name = source_file.split("/")[-1]
-            action_map[r"(?!/)[\[\(]{}[\)\]]".format(
-                source_file_name)] = lambda session, logger: session.send_line("", logger)
-            action_map[r"(?!/)[\[\(]{}[\)\]]".format(
-                destination_file_name)] = lambda session, logger: session.send_line("", logger)
-        if host:
-            if "@" in host:
-                storage_data = re.search(r"^(?P<user>\S+):(?P<password>\S+)@(?P<host>\S+)", host)
-                if storage_data:
-                    storage_data_dict = storage_data.groupdict()
-                    host = storage_data_dict["host"]
-                    password = storage_data_dict["password"]
-
-                    action_map[r"[Pp]assword:".format(
-                        source_file)] = lambda session, logger: session.send_line(password, logger)
-
-                else:
-                    host = host.split("@")[-1]
-            action_map[r"(?!/){}(?!/)".format(host)] = lambda session, logger: session.send_line("", logger)
-        return action_map
+                raise Exception("Huawei do no yet support append operations on configuration files")

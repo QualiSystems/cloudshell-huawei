@@ -1,15 +1,26 @@
-from cloudshell.networking.huawei.huawei_cli_handler import HuaweiCliHandler
-from cloudshell.networking.huawei.flows.huawei_autoload_flow import HuaweiAutoloadFlow
-from cloudshell.networking.huawei.autoload.huawei_generic_snmp_autoload import HuaweiGenericSNMPAutoload
-from cloudshell.networking.devices.runners.autoload_runner import AutoloadRunner
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from cloudshell.devices.runners.autoload_runner import AutoloadRunner
+from cloudshell.networking.huawei.flows.huawei_autoload_flow import HuaweiSnmpAutoloadFlow
 
 
+# class HuaweiAutoloadRunner(AutoloadRunner):
+#     def __init__(self, resource_config, logger, snmp_handler):
+#         super(HuaweiAutoloadRunner, self).__init__(resource_config, logger)
+#         self.snmp_handler = snmp_handler
+#
+#     @property
+#     def autoload_flow(self):
+#         return HuaweiSnmpAutoloadFlow(self.snmp_handler, self._logger)
+#
+#
 class HuaweiAutoloadRunner(AutoloadRunner):
-    def __init__(self, cli, logger, api, context, supported_os):
-        super(HuaweiAutoloadRunner, self).__init__(cli, logger, context, supported_os)
-        self._cli_handler = HuaweiCliHandler(cli, context, logger, api)
+    def __init__(self, resource_config, logger, snmp_handler):
+        super(HuaweiAutoloadRunner, self).__init__(resource_config)
         self._logger = logger
-        self._autoload_flow = HuaweiAutoloadFlow(cli_handler=self._cli_handler,
-                                                 autoload_class=HuaweiGenericSNMPAutoload,
-                                                 logger=logger,
-                                                 resource_name=self._resource_name)
+        self.snmp_handler = snmp_handler
+
+    @property
+    def autoload_flow(self):
+        return HuaweiSnmpAutoloadFlow(self.snmp_handler, self._logger)
