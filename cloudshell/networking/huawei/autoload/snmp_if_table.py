@@ -8,7 +8,7 @@ from cloudshell.networking.huawei.autoload.snmp_port_attr_tables import SnmpPort
 
 
 class SnmpIfTable(object):
-    PORT_CHANNEL_NAME = ["port-channel", "bundle-ether"]
+    PORT_CHANNEL_NAME = ["eth-trunk"]
     PORT_EXCLUDE_LIST = ["mgmt", "management", "loopback", "null", "meth"]
 
     def __init__(self, snmp_handler, logger):
@@ -78,7 +78,7 @@ class SnmpIfTable(object):
         self._logger.info('MIB Tables loaded successfully')
 
     def get_if_index_from_port_name(self, port_name, port_filter_list):
-        port_if_re = re.search(r"(?P<address>(\d+/).+)", port_name)  # TODO check value 10GE1
+        port_if_re = re.search(r"(?P<address>\d*\w+(\d+/).+)", port_name)  # TODO check value 10GE1
         if port_if_re:
             if_table_re = port_if_re.groupdict()["address"]
             for interface in self.if_ports:
