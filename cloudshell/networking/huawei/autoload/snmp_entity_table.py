@@ -318,17 +318,24 @@ class HuaweiSNMPEntityTable(object):
 
         port_exclude_list = self.port_exclude_pattern.replace("|", "|.*")
         port_if_entity = None
-        ent_alias_mapping_identifier = self._snmp.get_property('ENTITY-MIB', 'entAliasMappingIdentifier',
-                                                               "{}.{}".format(port_index, 0))
-        if not ent_alias_mapping_identifier:
-            ent_alias_mapping_identifier = self._snmp.get_property('ENTITY-MIB', 'entAliasMappingIdentifier',
-                                                                   "{}.{}".format(port_index, 1))
-        if ent_alias_mapping_identifier:
-            port_id = ent_alias_mapping_identifier.split('.')[-1]
+        ent_alias_mapping_identifier = None
+        index_template = "{}.{}"
+        try:
+            index = index_template.format(port_index, 0)
+            ent_alias_mapping_identifier = int(self._snmp.get_property('ENTITY-MIB',
+                                                                       'entAliasMappingIdentifier',
+                                                                       index).split('.')[-1])
+        except ValueError:
             try:
-                port_if_entity = self._if_table.get_if_entity_by_index(int(port_id))
-            except Exception:
-                self._logger.debug("Failed to get entAliasMappingIdentifier", exc_info=1)
+                index = index_template.format(port_index, 1)
+                ent_alias_mapping_identifier = int(self._snmp.get_property('ENTITY-MIB',
+                                                                           'entAliasMappingIdentifier',
+                                                                           index).split('.')[-1])
+            except ValueError:
+                self._logger.debug("Failed to get entAliasMappingIdentifier")
+        if ent_alias_mapping_identifier:
+            port_id = ent_alias_mapping_identifier
+            port_if_entity = self._if_table.get_if_entity_by_index(int(port_id))
 
         if not port_if_entity:
             port_if_entity = self._if_table.get_if_index_from_port_name(port_descr, port_exclude_list)
