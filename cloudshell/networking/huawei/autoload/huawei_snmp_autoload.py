@@ -14,7 +14,7 @@ class HuaweiGenericSNMPAutoload(object):
     VENDOR = "Huawei"
     IF_ENTITY = "ifDescr"
     ENTITY_PHYSICAL = "entPhysicalDescr"
-    SNMP_ERRORS = [r'No\s+Such\s+Object\s+currently\s+exists']
+    SNMP_ERRORS = [r'No\s+Such\s+(Object|Instance)\s+currently\s+exists']
     # DEVICE_NAMES_MAP_FILE = os.path.join(os.path.dirname(__file__), os.pardir, "mibs", "device_names_map.csv")
 
     def __init__(self, snmp_handler, shell_name, shell_type, resource_name, logger):
