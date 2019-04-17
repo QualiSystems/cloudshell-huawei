@@ -1,15 +1,21 @@
-from cloudshell.networking.huawei.huawei_cli_handler import HuaweiCliHandler
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from cloudshell.devices.runners.configuration_runner import ConfigurationRunner
+
 from cloudshell.networking.huawei.flows.huawei_restore_flow import HuaweiRestoreFlow
 from cloudshell.networking.huawei.flows.huawei_save_flow import HuaweiSaveFlow
-from cloudshell.networking.devices.runners.configuration_runner import ConfigurationRunner
 
 
 class HuaweiConfigurationRunner(ConfigurationRunner):
-    def __init__(self, cli, logger, context, api):
-        super(HuaweiConfigurationRunner, self).__init__(logger, context, api)
-        self._cli_handler = HuaweiCliHandler(cli, context, logger, api)
-        self._save_flow = HuaweiSaveFlow(cli_handler=self._cli_handler,
-                                         logger=self._logger)
-        self._restore_flow = HuaweiRestoreFlow(cli_handler=self._cli_handler,
-                                               logger=self._logger)
-        self.file_system = 'flash:'
+    @property
+    def restore_flow(self):
+        return HuaweiRestoreFlow(self.cli_handler, self._logger)
+
+    @property
+    def save_flow(self):
+        return HuaweiSaveFlow(self.cli_handler, self._logger)
+
+    @property
+    def file_system(self):
+        return "flash:"
