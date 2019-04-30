@@ -1,27 +1,24 @@
 #
 # PySNMP MIB module HUAWEI-MIB (http://pysnmp.sf.net)
 # ASN.1 source http://mibs.snmplabs.com:80/asn1/HUAWEI-MIB
-# Produced by pysmi-0.0.7 at Sun Jul  3 11:25:21 2016
-# On host localhost.localdomain platform Linux version 3.10.0-229.7.2.el7.x86_64 by user root
-# Using Python version 2.7.5 (default, Jun 24 2015, 00:41:19) 
+# Produced by pysmi-0.2.2 at Tue Apr 30 13:26:34 2019
+# On host ? platform ? version ? by user ?
+# Using Python version 2.7.14 (v2.7.14:84471935ed, Sep 16 2017, 20:19:30) [MSC v.1500 32 bit (Intel)]
 #
-(Integer, ObjectIdentifier, OctetString,) = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier",
-                                                                     "OctetString")
-(NamedValues,) = mibBuilder.importSymbols("ASN1-ENUMERATION", "NamedValues")
-(ConstraintsUnion, SingleValueConstraint, ConstraintsIntersection, ValueSizeConstraint,
- ValueRangeConstraint,) = mibBuilder.importSymbols("ASN1-REFINEMENT", "ConstraintsUnion", "SingleValueConstraint",
-                                                   "ConstraintsIntersection", "ValueSizeConstraint",
-                                                   "ValueRangeConstraint")
-(NotificationGroup, ModuleCompliance,) = mibBuilder.importSymbols("SNMPv2-CONF", "NotificationGroup",
-                                                                  "ModuleCompliance")
-(Integer32, MibScalar, MibTable, MibTableRow, MibTableColumn, NotificationType, MibIdentifier, IpAddress, TimeTicks,
- Counter64, Unsigned32, enterprises, iso, Gauge32, ModuleIdentity, ObjectIdentity, Bits,
- Counter32,) = mibBuilder.importSymbols("SNMPv2-SMI", "Integer32", "MibScalar", "MibTable", "MibTableRow",
-                                        "MibTableColumn", "NotificationType", "MibIdentifier", "IpAddress", "TimeTicks",
-                                        "Counter64", "Unsigned32", "enterprises", "iso", "Gauge32", "ModuleIdentity",
-                                        "ObjectIdentity", "Bits", "Counter32")
-(DisplayString, TextualConvention,) = mibBuilder.importSymbols("SNMPv2-TC", "DisplayString", "TextualConvention")
+Integer, ObjectIdentifier, OctetString = mibBuilder.importSymbols("ASN1", "Integer", "ObjectIdentifier", "OctetString")
+NamedValues, = mibBuilder.importSymbols("ASN1-ENUMERATION", "NamedValues")
+ConstraintsUnion, SingleValueConstraint, ConstraintsIntersection, ValueSizeConstraint, ValueRangeConstraint = mibBuilder.importSymbols(
+    "ASN1-REFINEMENT", "ConstraintsUnion", "SingleValueConstraint", "ConstraintsIntersection", "ValueSizeConstraint",
+    "ValueRangeConstraint")
+NotificationGroup, ModuleCompliance = mibBuilder.importSymbols("SNMPv2-CONF", "NotificationGroup", "ModuleCompliance")
+Integer32, MibScalar, MibTable, MibTableRow, MibTableColumn, NotificationType, MibIdentifier, IpAddress, TimeTicks, Counter64, Unsigned32, enterprises, iso, Gauge32, ModuleIdentity, ObjectIdentity, Bits, Counter32 = mibBuilder.importSymbols(
+    "SNMPv2-SMI", "Integer32", "MibScalar", "MibTable", "MibTableRow", "MibTableColumn", "NotificationType",
+    "MibIdentifier", "IpAddress", "TimeTicks", "Counter64", "Unsigned32", "enterprises", "iso", "Gauge32",
+    "ModuleIdentity", "ObjectIdentity", "Bits", "Counter32")
+DisplayString, TextualConvention = mibBuilder.importSymbols("SNMPv2-TC", "DisplayString", "TextualConvention")
 huawei = ModuleIdentity((1, 3, 6, 1, 4, 1, 2011))
+if mibBuilder.loadTexts: huawei.setLastUpdated('200601250000Z')
+if mibBuilder.loadTexts: huawei.setOrganization('Fix-Net Dept, Huawei Technologies Co.,Ltd.')
 hwLocal = MibIdentifier((1, 3, 6, 1, 4, 1, 2011, 1))
 quidway = MibIdentifier((1, 3, 6, 1, 4, 1, 2011, 1, 1))
 hwTrans = MibIdentifier((1, 3, 6, 1, 4, 1, 2011, 1, 2))
@@ -657,7 +654,7 @@ mibBuilder.exportSymbols("HUAWEI-MIB", eudemon300=eudemon300, s2700_26TP_EI_AC=s
                          switch3016=switch3016, s5700_28C_HI=s5700_28C_HI, hwTrans=hwTrans,
                          s3700_52TP_EI_24S_DC=s3700_52TP_EI_24S_DC, s3700_52TP_EI_DC=s3700_52TP_EI_DC, lanSw=lanSw,
                          e050=e050, wireInSsp=wireInSsp, cX600_X16=cX600_X16, s3700_28TP_EI_24S_AC=s3700_28TP_EI_24S_AC,
-                         cX200D=cX200D, eudemon1000=eudemon1000, ne05=ne05, wlanApWA1005=wlanApWA1005,
+                         cX200D=cX200D, ne16=ne16, ne05=ne05, wlanApWA1005=wlanApWA1005,
                          hwMusaV100R002Mib=hwMusaV100R002Mib, ar1240=ar1240, iad=iad, hwNovellProtocol=hwNovellProtocol,
                          nse1000_X3=nse1000_X3, ne40E_4=ne40E_4, s2326TP_PWR_EI=s2326TP_PWR_EI,
                          wlanApWA1008=wlanApWA1008, module=module, hwPower=hwPower, s5710_28C_PWR_EI=s5710_28C_PWR_EI,
@@ -720,12 +717,12 @@ mibBuilder.exportSymbols("HUAWEI-MIB", configFile=configFile, hwAtmSvc=hwAtmSvc,
                          hwMpls=hwMpls, s2309TP_EI=s2309TP_EI, s2700_18TP_EI_AC=s2700_18TP_EI_AC,
                          wlanApWA1003=wlanApWA1003, hwVdsl=hwVdsl, ptn6900_2=ptn6900_2, as8010=as8010,
                          s5710_28C_PWR_LI=s5710_28C_PWR_LI, s8505e=s8505e, hwRstpExt=hwRstpExt,
-                         s5352C_PWR_EI=s5352C_PWR_EI, hwFr=hwFr, s2318P_EI=s2318P_EI, ne16=ne16, vdg10_40=vdg10_40,
-                         ssp2000=ssp2000, mpeg_2=mpeg_2, s2710_52P_SI_AC=s2710_52P_SI_AC, huaweiMgmt=huaweiMgmt,
-                         s3552G=s3552G, s3328TP_EI_MC=s3328TP_EI_MC, s3318TP_EI_MC=s3318TP_EI_MC, hwVprn=hwVprn,
-                         hwMusaV100R001Mib=hwMusaV100R001Mib, s5328C_PWR_EI=s5328C_PWR_EI, cX600_X2=cX600_X2,
-                         atn910=atn910, hwMa5100Mib=hwMa5100Mib, s9312E=s9312E, ce12804=ce12804, ar207v=ar207v,
-                         hwPw=hwPw, eudemon2100=eudemon2100, msp=msp, cX380_ME=cX380_ME, ups=ups,
+                         s5352C_PWR_EI=s5352C_PWR_EI, hwFr=hwFr, s2318P_EI=s2318P_EI, eudemon1000=eudemon1000,
+                         vdg10_40=vdg10_40, ssp2000=ssp2000, mpeg_2=mpeg_2, s2710_52P_SI_AC=s2710_52P_SI_AC,
+                         huaweiMgmt=huaweiMgmt, s3552G=s3552G, s3328TP_EI_MC=s3328TP_EI_MC, s3318TP_EI_MC=s3318TP_EI_MC,
+                         hwVprn=hwVprn, hwMusaV100R001Mib=hwMusaV100R001Mib, s5328C_PWR_EI=s5328C_PWR_EI,
+                         cX600_X2=cX600_X2, atn910=atn910, hwMa5100Mib=hwMa5100Mib, s9312E=s9312E, ce12804=ce12804,
+                         ar207v=ar207v, hwPw=hwPw, eudemon2100=eudemon2100, msp=msp, cX380_ME=cX380_ME, ups=ups,
                          cX200D_EA_MC=cX200D_EA_MC, mlsr=mlsr, ma5100V600=ma5100V600, ssp5000_X3=ssp5000_X3,
                          s5710_52C_LI=s5710_52C_LI, s7703=s7703, rmonExtend=rmonExtend,
                          s2700_9TP_PWR_EI=s2700_9TP_PWR_EI, s5012T_12_10GBC_DC=s5012T_12_10GBC_DC, ptn6900_1=ptn6900_1,

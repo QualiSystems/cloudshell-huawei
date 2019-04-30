@@ -8,12 +8,16 @@ from cloudshell.networking.huawei.autoload.snmp_port_attr_tables import SnmpPort
 
 
 class SnmpIfTable(object):
+    IF_MIB = "IF-MIB"
+    IF_NAME = "ifName"
+    IF_DESCR = "ifDescr"
     PORT_CHANNEL_NAME = ["eth-trunk"]
     PORT_EXCLUDE_LIST = ["mgmt", "management", "loopback", "null", "meth"]
 
     def __init__(self, snmp_handler, logger):
         self._snmp = snmp_handler
         self._logger = logger
+        self._if_name = self.IF_NAME
         self._load_snmp_tables()
         self._if_entities_dict = dict()
         self._if_port_dict = dict()
@@ -45,7 +49,7 @@ class SnmpIfTable(object):
 
     def _get_if_entities(self):
         for index in self._if_table.keys():
-            interface_name = self._if_table.get(index, {}).get("ifDescr", "")
+            interface_name = self._if_table.get(index, {}).get(self._if_name, "")
             if "." in interface_name:
                 continue
             if any([port_channel for port_channel in self.PORT_CHANNEL_NAME if port_channel in interface_name.lower()]):
@@ -72,7 +76,11 @@ class SnmpIfTable(object):
         """
 
         self._logger.info('Start loading MIB tables:')
-        self._if_table = self._snmp.get_table('IF-MIB', "ifDescr")
+        self._if_table = self._snmp.get_table(self.IF_MIB, self._if_name)
+        if not self._if_table:
+            self._if_name = self.IF_DESCR
+            self._if_table = self._snmp.get_table(self.IF_MIB, self._if_name)
+
         self._logger.info('ifIndex table loaded')
 
         self._logger.info('MIB Tables loaded successfully')
