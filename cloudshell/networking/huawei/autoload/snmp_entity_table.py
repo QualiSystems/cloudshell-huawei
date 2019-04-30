@@ -31,7 +31,7 @@ class HuaweiSNMPEntityTable(object):
         self.port_exclude_pattern = r'stack|engine|management|mgmt|voice|foreign|' \
                                     r'cpu|control\s*ethernet\s*port|console\s*port'
         # self.module_exclude_pattern = r''
-        self.entity_to_container_pattern = "powershelf|cevsfp|cevxfr|cevxfp|cevContainer10GigBasePort|cevModulePseAsicPlim"
+        self.entity_to_container_pattern = "hwvirtualentityoid"
         # self.ignore_entity_pattern = "cevModule$|cevModuleDaughterCard$"
         # self.ignore_entities_dict = dict()
 
@@ -298,10 +298,11 @@ class HuaweiSNMPEntityTable(object):
         result = []
         parent_id = int(self._entity_table[module_id]['entPhysicalContainedIn'])
         if parent_id > 0 and parent_id in self._entity_table:
-            if re.search(r'module', self._entity_table[parent_id]['entPhysicalClass']):
+            parent_physical_class = self._entity_table.get(parent_id, {}).get("entPhysicalClass", "")
+            if parent_physical_class == "module":
                 result.append(parent_id)
                 result.extend(self._get_module_parents(parent_id))
-            elif re.search(r'chassis', self._entity_table[parent_id]['entPhysicalClass']):
+            elif parent_physical_class == "chassis":
                 return result
             else:
                 result.extend(self._get_module_parents(parent_id))

@@ -58,7 +58,7 @@ class HuaweiGenericSNMPAutoload(object):
         self.logger.info("*" * 70)
         self.logger.info("Start SNMP discovery process .....")
         self.load_mibs()
-        self.snmp_handler.load_mib(["HUAWEI-PORT-MIB"])
+        self.snmp_handler.load_mib(["HUAWEI-PORT-MIB", "HUAWEI-TC-MIB"])
         self._get_device_details()
         self._load_snmp_tables()
 
