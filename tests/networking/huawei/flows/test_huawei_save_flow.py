@@ -12,7 +12,7 @@ class TestHuaweiSaveFlow(unittest.TestCase):
         cli_handler = mock.MagicMock()
         logger = mock.MagicMock()
         super(TestHuaweiSaveFlow, self).setUp()
-        self.tested_instance = HuaweiSaveFlow(cli_handler=cli_handler, logger=logger)
+        self.tested_instance = HuaweiSaveFlow(cli_handler=cli_handler, logger=logger, file_system="flash")
 
     def tearDown(self):
         super(TestHuaweiSaveFlow, self).tearDown()
