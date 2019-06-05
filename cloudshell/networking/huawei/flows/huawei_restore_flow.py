@@ -8,10 +8,10 @@ from cloudshell.networking.huawei.command_actions.save_restore_actions import Sa
 
 
 class HuaweiRestoreFlow(RestoreConfigurationFlow):
-    FILE_SYSTEM = "flash"
 
-    def __init__(self, cli_handler, logger):
+    def __init__(self, cli_handler, logger, file_system):
         super(HuaweiRestoreFlow, self).__init__(cli_handler, logger)
+        self.file_system = file_system
 
     def execute_flow(self, path, configuration_type, restore_method, vrf_management_name=None):
         """ Execute flow which save selected file to the provided destination
@@ -42,11 +42,11 @@ class HuaweiRestoreFlow(RestoreConfigurationFlow):
             restore_action = SaveRestoreActions(enable_session, self._logger)
 
             if restore_method == "override":
-                dst_file = "{file_system}:/{file_name}".format(file_system=self.FILE_SYSTEM,
+                dst_file = "{file_system}:/{file_name}".format(file_system=self.file_system,
                                                                file_name=url.get(UrlParser.FILENAME))
 
                 scheme = url.get(UrlParser.SCHEME).lower()
-                if not scheme or scheme == self.FILE_SYSTEM:
+                if not scheme or scheme == self.file_system:
                     restore_action.setup_startup_config(path)
                 elif scheme in ["ftp", "tftp"]:
                     restore_action.get_file(server_address=url.get(UrlParser.HOSTNAME),
