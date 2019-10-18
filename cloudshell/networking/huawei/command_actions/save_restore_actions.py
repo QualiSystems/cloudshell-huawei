@@ -44,7 +44,7 @@ class SaveRestoreActions(object):
     def _device_response_verification(self, output):
         """  """
 
-        match = re.search(r"\d+ bytes copied|copied.*[\[\(].*[0-9]* bytes.*[\)\]]|[Cc]opy complete",
+        match = re.search(r"\d+ bytes copied|copied.*[\[\(].*[0-9]* bytes.*[\)\]]|[Cc]opy complete|[Cc]omplete.",
                           output,
                           re.IGNORECASE)
 
