@@ -120,6 +120,11 @@ class HuaweiSNMPEntityTable(object):
         #                                    'entPhysicalVendorType': 'str'}
         entity_table_optional_port_attr = {'entPhysicalDescr': 'str', 'entPhysicalName': 'str'}
 
+        physical_desc = self._snmp.get_table('ENTITY-MIB', 'entPhysicalDescr')
+        physical_name = self._snmp.get_table('ENTITY-MIB', 'entPhysicalName')
+        physical_vendor = self._snmp.get_table('ENTITY-MIB', 'entPhysicalVendorType')
+        physical_class = self._snmp.get_table('ENTITY-MIB', 'entPhysicalClass')
+        contained_in = self._snmp.get_table('ENTITY-MIB', 'entPhysicalContainedIn')
         physical_indexes = self._snmp.get_table('ENTITY-MIB', 'entPhysicalParentRelPos')
         vendor_type_match_pattern = r"|".join(self.ENTITY_VENDOR_TYPE_TO_CLASS_MAP.keys())
         for index in physical_indexes.keys():
@@ -129,20 +134,26 @@ class HuaweiSNMPEntityTable(object):
                 continue
             temp_entity_table = physical_indexes[index].copy()
 
-            temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, {"entPhysicalClass": "str"})
-                                     [index])
+            temp_entity_table.update(physical_class[index])
+            # temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, {"entPhysicalClass": "str"})
+            #                         [index])
+
             if re.search(r"cpu|fan|sensor", temp_entity_table['entPhysicalClass'].lower()):
                 self._logger.debug("Loaded {}, skipping.".format(temp_entity_table['entPhysicalClass']))
                 continue
 
-            temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, {"entPhysicalContainedIn": "str"})
-                                     [index])
+            temp_entity_table.update(contained_in[index])
+            # temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, {"entPhysicalContainedIn": "str"})
+            #                         [index])
+
             if temp_entity_table['entPhysicalContainedIn'] == '':
                 self.exclusion_list.append(index)
                 continue
 
-            temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, {"entPhysicalVendorType": "str"})
-                                     [index])
+            temp_entity_table.update(physical_vendor[index])
+            # temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, {"entPhysicalVendorType": "str"})
+            #                         [index])
+
             ent_physical_class = temp_entity_table.get("entPhysicalClass")
             if not ent_physical_class or ent_physical_class == "''" or "other" in ent_physical_class:
                 vendor_type = temp_entity_table['entPhysicalVendorType']
@@ -164,8 +175,10 @@ class HuaweiSNMPEntityTable(object):
             else:
                 temp_entity_table['entPhysicalClass'] = temp_entity_table['entPhysicalClass'].replace("'", "")
 
-            temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, entity_table_optional_port_attr)
-                                     [index])
+            temp_entity_table.update(physical_desc[index])
+            temp_entity_table.update(physical_name[index])
+            # temp_entity_table.update(self._snmp.get_properties('ENTITY-MIB', index, entity_table_optional_port_attr)
+            #                         [index])
 
             if re.search(r'stack|chassis|module|port|powerSupply|container|backplane',
                          temp_entity_table['entPhysicalClass']):
