@@ -44,7 +44,7 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
 
             if configuration_type == "running-config":
                 # src_file = "{file_system}:/qualirunconfig.cfg".format(file_system=self.file_system)
-                src_file = "quali_run_config.cfg"
+                src_file = folder_path
                 save_action.save_runninig_config(dst_file=src_file)
             else:
                 startup_config = system_action.display_startup_config()
@@ -58,6 +58,8 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
                 save_action.put_file(server_address=url.get(UrlParser.HOSTNAME),
                                      src_file=src_file,
                                      dst_file=url.get(UrlParser.FILENAME))
+            elif src_file == folder_path:
+                pass
             else:
                 raise Exception("Unsupported backup protocol {scheme}. "
                                 "Supported types are ftp, tftp of local({file_system})".format(scheme=scheme,
