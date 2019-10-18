@@ -6,6 +6,7 @@ from cloudshell.devices.networking_utils import UrlParser
 from cloudshell.devices.flows.action_flows import SaveConfigurationFlow
 from cloudshell.networking.huawei.command_actions.system_actions import SystemActions
 from cloudshell.networking.huawei.command_actions.save_restore_actions import SaveRestoreActions
+import re
 
 
 class HuaweiSaveFlow(SaveConfigurationFlow):
@@ -22,6 +23,7 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
         :return: saved configuration file name
         """
 
+        folder_path = re.sub('{}:'.format(self.file_system), '', folder_path)
         if not configuration_type:
             configuration_type = "running-config"
         elif "-config" not in configuration_type:
