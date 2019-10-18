@@ -24,6 +24,9 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
         """
 
         folder_path = re.sub('{}:'.format(self.file_system), '', folder_path)
+        if 'cfg' not in folder_path:
+            folder_path = folder_path + '.cfg'
+
         if not configuration_type:
             configuration_type = "running-config"
         elif "-config" not in configuration_type:
