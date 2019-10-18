@@ -5,6 +5,7 @@ from cloudshell.devices.flows.action_flows import RestoreConfigurationFlow
 from cloudshell.devices.networking_utils import UrlParser
 from cloudshell.networking.huawei.command_actions.system_actions import SystemActions
 from cloudshell.networking.huawei.command_actions.save_restore_actions import SaveRestoreActions
+import re
 
 
 class HuaweiRestoreFlow(RestoreConfigurationFlow):
@@ -23,6 +24,7 @@ class HuaweiRestoreFlow(RestoreConfigurationFlow):
         :param vrf_management_name: Virtual Routing and Forwarding Name
         """
 
+        path = re.sub('{}:'.format(self.file_system), '', path)
         if not configuration_type:
             configuration_type = "running-config"
         elif "-config" not in configuration_type:
