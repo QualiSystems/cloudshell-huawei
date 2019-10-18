@@ -79,7 +79,7 @@ class SaveRestoreActions(object):
         """ Specifies the system configuration file for next startup """
 
         output = CommandTemplateExecutor(self._cli_service,
-                                         configuration.SAVE_RUNNING).execute_command(dst_file=dst_file)
+                                         configuration.SAVE_STARTUP).execute_command(dst_file=dst_file)
 
         match = re.search(r"Succeeded in setting the configuration for booting system",
                           output,
