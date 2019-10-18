@@ -20,4 +20,4 @@ class HuaweiFileSystemFlow(BaseFlow):
 
             src_file = save_action.get_startup_config_filename(startup_config=startup_config)
 
-            return src_file.split(":")[0]
+            return src_file.split(":")[0].lstrip(' ')

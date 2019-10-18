@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
-
+from collections import OrderedDict
 from cloudshell.cli.command_template.command_template_executor import CommandTemplateExecutor
 from cloudshell.networking.huawei.command_templates import system
 
@@ -71,7 +71,9 @@ class SystemActions(object):
         try:
             CommandTemplateExecutor(cli_service=self._cli_service,
                                     command_template=system.REBOOT,
-                                    action_map=action_map,
+                                    action_map=OrderedDict({
+                                        r"\[Y/N\]": lambda session, logger: session.send_line("Y", logger),
+                                        "\(Y/N\)": lambda session, logger: session.send_line("Y", logger)}),
                                     error_map=error_map,
                                     expected_string="System is rebooting, please wait").execute_command()
         except Exception as e:

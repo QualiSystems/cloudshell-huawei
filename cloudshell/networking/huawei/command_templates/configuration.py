@@ -29,7 +29,7 @@ SAVE_RUNNING = CommandTemplate("save {dst_file}",
                                    r"[Oo]verwrit+e": lambda session, logger: session.send_line("y", logger),
                                    "\(Y/N\)": lambda session, logger: session.send_line("Y", logger)}))
 
-SAVE_STARTUP = CommandTemplate("startup saved-configuration {dst}",
+SAVE_STARTUP = CommandTemplate("startup saved-configuration {dst_file}",
                                action_map=OrderedDict({
                                    r"\[confirm\]": lambda session, logger: session.send_line("", logger),
                                    r"\[Y/N\]": lambda session, logger: session.send_line("y", logger),

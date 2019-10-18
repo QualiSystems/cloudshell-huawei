@@ -44,7 +44,7 @@ class SaveRestoreActions(object):
     def _device_response_verification(self, output):
         """  """
 
-        match = re.search(r"\d+ bytes copied|copied.*[\[\(].*[0-9]* bytes.*[\)\]]|[Cc]opy complete",
+        match = re.search(r"\d+ bytes copied|copied.*[\[\(].*[0-9]* bytes.*[\)\]]|[Cc]opy complete|[Cc]omplete.",
                           output,
                           re.IGNORECASE)
 
@@ -79,7 +79,7 @@ class SaveRestoreActions(object):
         """ Specifies the system configuration file for next startup """
 
         output = CommandTemplateExecutor(self._cli_service,
-                                         configuration.SAVE_RUNNING).execute_command(dst_file=dst_file)
+                                         configuration.SAVE_STARTUP).execute_command(dst_file=dst_file)
 
         match = re.search(r"Succeeded in setting the configuration for booting system",
                           output,

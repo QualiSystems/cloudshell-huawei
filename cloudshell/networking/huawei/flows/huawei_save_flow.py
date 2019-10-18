@@ -6,6 +6,7 @@ from cloudshell.devices.networking_utils import UrlParser
 from cloudshell.devices.flows.action_flows import SaveConfigurationFlow
 from cloudshell.networking.huawei.command_actions.system_actions import SystemActions
 from cloudshell.networking.huawei.command_actions.save_restore_actions import SaveRestoreActions
+import re
 
 
 class HuaweiSaveFlow(SaveConfigurationFlow):
@@ -21,6 +22,10 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
         :param vrf_management_name: Virtual Routing and Forwarding Name
         :return: saved configuration file name
         """
+
+        folder_path = re.sub('{}:'.format(self.file_system), '', folder_path)
+        if 'cfg' not in folder_path:
+            folder_path = folder_path + '.cfg'
 
         if not configuration_type:
             configuration_type = "running-config"
@@ -39,7 +44,7 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
 
             if configuration_type == "running-config":
                 # src_file = "{file_system}:/qualirunconfig.cfg".format(file_system=self.file_system)
-                src_file = "quali_run_config.cfg"
+                src_file = folder_path
                 save_action.save_runninig_config(dst_file=src_file)
             else:
                 startup_config = system_action.display_startup_config()
@@ -53,6 +58,8 @@ class HuaweiSaveFlow(SaveConfigurationFlow):
                 save_action.put_file(server_address=url.get(UrlParser.HOSTNAME),
                                      src_file=src_file,
                                      dst_file=url.get(UrlParser.FILENAME))
+            elif src_file == folder_path:
+                pass
             else:
                 raise Exception("Unsupported backup protocol {scheme}. "
                                 "Supported types are ftp, tftp of local({file_system})".format(scheme=scheme,
