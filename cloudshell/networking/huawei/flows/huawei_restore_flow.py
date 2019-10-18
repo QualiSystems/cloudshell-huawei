@@ -25,6 +25,9 @@ class HuaweiRestoreFlow(RestoreConfigurationFlow):
         """
 
         path = re.sub('{}:'.format(self.file_system), '', path)
+        if 'cfg' not in path:
+            path = path + '.cfg'
+
         if not configuration_type:
             configuration_type = "running-config"
         elif "-config" not in configuration_type:
