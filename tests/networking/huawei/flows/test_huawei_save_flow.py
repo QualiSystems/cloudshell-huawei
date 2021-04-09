@@ -1,8 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import mock
 import unittest
+
+import mock
 
 from cloudshell.networking.huawei.flows.huawei_save_flow import HuaweiSaveFlow
 
@@ -12,7 +13,9 @@ class TestHuaweiSaveFlow(unittest.TestCase):
         cli_handler = mock.MagicMock()
         logger = mock.MagicMock()
         super(TestHuaweiSaveFlow, self).setUp()
-        self.tested_instance = HuaweiSaveFlow(cli_handler=cli_handler, logger=logger, file_system="flash")
+        self.tested_instance = HuaweiSaveFlow(
+            cli_handler=cli_handler, logger=logger, file_system="flash"
+        )
 
     def tearDown(self):
         super(TestHuaweiSaveFlow, self).tearDown()
@@ -27,8 +30,12 @@ class TestHuaweiSaveFlow(unittest.TestCase):
             self.tested_instance.execute_flow(folder_path, "unexpected-config")
 
     @mock.patch("cloudshell.networking.huawei.flows.huawei_save_flow.SystemActions")
-    @mock.patch("cloudshell.networking.huawei.flows.huawei_save_flow.SaveRestoreActions")
-    def test_execute_flow_success_startup_remote(self, save_actions_class, system_actions_class):
+    @mock.patch(
+        "cloudshell.networking.huawei.flows.huawei_save_flow.SaveRestoreActions"
+    )
+    def test_execute_flow_success_startup_remote(
+        self, save_actions_class, system_actions_class
+    ):
         """ Successfully save startup configuration """
 
         folder_path = "tftp://127.0.0.1/quali_test_startup"
@@ -51,9 +58,12 @@ class TestHuaweiSaveFlow(unittest.TestCase):
 
         self.tested_instance.execute_flow(folder_path, "startup")
 
-        save_actions.put_file.assert_called_once_with(server_address="127.0.0.1",
-                                                      src_file="flash:/vrpcfg.zip",
-                                                      dst_file="quali_test_startup")
+        save_actions.put_file.assert_called_once_with(
+            server_address="127.0.0.1",
+            src_file="flash:/vrpcfg.zip",
+            dst_file="quali_test_startup",
+        )
+
 
 # if configuration_type == "running-config":
 #     # src_file = "{file_system}:/qualirunconfig.cfg".format(file_system=self.FILE_SYSTEM)
@@ -75,8 +85,6 @@ class TestHuaweiSaveFlow(unittest.TestCase):
 #     raise Exception("Unsupported backup protocol {scheme}. "
 #                     "Supported types are ftp, tftp of local({file_system})".format(scheme=scheme,
 #                                                                                    file_system=self.FILE_SYSTEM))
-
-
 
 
 """display startup

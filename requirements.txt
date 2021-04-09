@@ -1,2 +1,8 @@
-cloudshell-networking>=5.1,<5.2
-cloudshell-networking-devices>=2.7,<2.8
+tftpy
+cloudshell-shell-flows>=1.0,<2
+cloudshell-shell-connectivity-flow>=1.0,<2
+cloudshell-cli>=4.0,<5
+cloudshell-snmp>=4.0,<5
+cloudshell-snmp-autoload>=1.0,<2.0
+functools32; python_version <= '2.7'
+cloudshell-shell-standards~=1.2

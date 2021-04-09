@@ -1,61 +1,45 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from cloudshell.cli.command_mode import CommandMode
-
-
-# class DefaultCommandMode(CommandMode):
-#     PROMPT = '(.*?)'
-#     ENTER_COMMAND = ''
-#     EXIT_COMMAND = 'quit'
-#
-#     def __init__(self, resource_config, api):
-#         """ Initialize Default command mode, only for cases when session started not in enable mode """
-#
-#         self.resource_config = resource_config
-#         self._api = api
-#
-#         super(DefaultCommandMode, self).__init__(prompt=self.PROMPT,
-#                                                  enter_command=self.ENTER_COMMAND,
-#                                                  exit_command=self.EXIT_COMMAND)
+from cloudshell.cli.service.command_mode import CommandMode
 
 
 class EnableCommandMode(CommandMode):
-    PROMPT = r'<.*?>'
-    ENTER_COMMAND = ''  # system-view
-    EXIT_COMMAND = 'quit'
+    PROMPT = r"<.*?>"
+    ENTER_COMMAND = ""
+    EXIT_COMMAND = "quit"
 
-    def __init__(self, resource_config, api):
-        """ Initialize Enable command mode - super command mode for Huawei """
-
+    def __init__(self, resource_config):
+        """Initialize Enable command mode."""
         self.resource_config = resource_config
-        self._api = api
 
-        super(EnableCommandMode, self).__init__(prompt=self.PROMPT,
-                                                enter_command=self.ENTER_COMMAND,
-                                                exit_command=self.EXIT_COMMAND)
+        super(EnableCommandMode, self).__init__(
+            prompt=self.PROMPT,
+            enter_command=self.ENTER_COMMAND,
+            exit_command=self.EXIT_COMMAND,
+        )
 
 
 class ConfigCommandMode(CommandMode):
-    PROMPT = r'\[.*?\]'
-    ENTER_COMMAND = 'sys'
-    EXIT_COMMAND = 'quit'
+    PROMPT = r"\[.*?\]"
+    ENTER_COMMAND = "system-view"
+    EXIT_COMMAND = "quit"
 
-    def __init__(self, resource_config, api):
-        """ Initialize Config command mode """
+    def __init__(self, resource_config):
+        """Initialize Config command mode."""
 
         self.resource_config = resource_config
-        self._api = api
 
-        super(ConfigCommandMode, self).__init__(prompt=self.PROMPT,
-                                                enter_command=self.ENTER_COMMAND,
-                                                exit_command=self.EXIT_COMMAND)
+        super(ConfigCommandMode, self).__init__(
+            prompt=self.PROMPT,
+            enter_command=self.ENTER_COMMAND,
+            exit_command=self.EXIT_COMMAND,
+            enter_action_map={
+                r"Error: Incomplete command found at '\^' position.": lambda session, logger: session.send_line(
+                    "system-view immediately", logger
+                )
+            },
+        )
 
 
-CommandMode.RELATIONS_DICT = {
-    # DefaultCommandMode: {
-        EnableCommandMode: {
-            ConfigCommandMode: {}
-        }
-    # }
-}
+CommandMode.RELATIONS_DICT = {EnableCommandMode: {ConfigCommandMode: {}}}
