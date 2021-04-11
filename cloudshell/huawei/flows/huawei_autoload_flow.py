@@ -5,7 +5,7 @@ import os
 
 from cloudshell.shell.flows.autoload.basic_flow import AbstractAutoloadFlow
 
-from cloudshell.networking.huawei.autoload.huawei_generic_snmp_autoload import (
+from cloudshell.huawei.autoload.huawei_generic_snmp_autoload import (
     HuaweiGenericSNMPAutoload,
 )
 

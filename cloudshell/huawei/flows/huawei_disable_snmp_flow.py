@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 from cloudshell.snmp.snmp_parameters import SNMPWriteParameters
 
-from cloudshell.networking.huawei.command_actions.enable_disable_snmp_actions import (
+from cloudshell.huawei.command_actions.enable_disable_snmp_actions import (
     EnableDisableSnmpActions,
 )
-from cloudshell.networking.huawei.command_actions.system_actions import SystemActions
-from cloudshell.networking.huawei.helpers.exceptions import HuaweiSNMPException
+from cloudshell.huawei.command_actions.system_actions import SystemActions
+from cloudshell.huawei.helpers.exceptions import HuaweiSNMPException
 
 
 class HuaweiDisableSnmpFlow(object):

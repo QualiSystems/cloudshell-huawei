@@ -7,8 +7,8 @@ from cloudshell.cli.command_template.command_template_executor import (
     CommandTemplateExecutor,
 )
 
-from cloudshell.networking.huawei.command_templates import firmware
-from cloudshell.networking.huawei.helpers.exceptions import HuaweiFirmwareException
+from cloudshell.huawei.command_templates import firmware
+from cloudshell.huawei.helpers.exceptions import HuaweiFirmwareException
 
 
 class FirmwareActions(object):

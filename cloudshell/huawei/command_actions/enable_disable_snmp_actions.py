@@ -5,8 +5,8 @@ from cloudshell.cli.command_template.command_template_executor import (
     CommandTemplateExecutor,
 )
 
-from cloudshell.networking.huawei.command_templates import enable_disable_snmp
-from cloudshell.networking.huawei.helpers.exceptions import HuaweiSNMPException
+from cloudshell.huawei.command_templates import enable_disable_snmp
+from cloudshell.huawei.helpers.exceptions import HuaweiSNMPException
 
 
 class EnableDisableSnmpActions(object):

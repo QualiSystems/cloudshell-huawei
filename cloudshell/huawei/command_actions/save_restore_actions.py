@@ -7,8 +7,8 @@ from cloudshell.cli.command_template.command_template_executor import (
     CommandTemplateExecutor,
 )
 
-from cloudshell.networking.huawei.command_templates import configuration
-from cloudshell.networking.huawei.helpers.exceptions import HuaweiSaveRestoreException
+from cloudshell.huawei.command_templates import configuration
+from cloudshell.huawei.helpers.exceptions import HuaweiSaveRestoreException
 
 
 class SaveRestoreActions(object):

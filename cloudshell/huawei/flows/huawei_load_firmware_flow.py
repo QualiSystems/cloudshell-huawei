@@ -4,14 +4,10 @@
 from cloudshell.shell.flows.firmware.basic_flow import AbstractFirmwareFlow
 from cloudshell.shell.flows.utils.networking_utils import UrlParser
 
-from cloudshell.networking.huawei.command_actions.firmware_actions import (
-    FirmwareActions,
-)
-from cloudshell.networking.huawei.command_actions.save_restore_actions import (
-    SaveRestoreActions,
-)
-from cloudshell.networking.huawei.command_actions.system_actions import SystemActions
-from cloudshell.networking.huawei.helpers.exceptions import HuaweiFirmwareException
+from cloudshell.huawei.command_actions.firmware_actions import FirmwareActions
+from cloudshell.huawei.command_actions.save_restore_actions import SaveRestoreActions
+from cloudshell.huawei.command_actions.system_actions import SystemActions
+from cloudshell.huawei.helpers.exceptions import HuaweiFirmwareException
 
 
 class HuaweiLoadFirmwareFlow(AbstractFirmwareFlow):
@@ -23,6 +19,7 @@ class HuaweiLoadFirmwareFlow(AbstractFirmwareFlow):
 
     def _load_firmware_flow(self, path, vrf_management_name, timeout):
         """Load a firmware onto the device.
+
         :param path: The path to the firmware file, including the firmware file name
         :param vrf_management_name: Virtual Routing and Forwarding Name
         :param timeout:
@@ -62,9 +59,8 @@ class HuaweiLoadFirmwareFlow(AbstractFirmwareFlow):
             else:
                 raise HuaweiFirmwareException(
                     "Unsupported protocol. "
-                    "Updating firmware possible from tftp, ftp or local storage({}) only".format(
-                        self.FILE_SYSTEM
-                    )
+                    "Updating firmware possible from tftp, "
+                    "ftp or local storage({}) only".format(self.FILE_SYSTEM)
                 )
 
             firmware_actions.update_firmware(firmware_file=dst_file)

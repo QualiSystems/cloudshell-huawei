@@ -14,5 +14,9 @@ class HuaweiSaveRestoreException(HuaweiBaseException):
     """Huawei save/restore configuration exception."""
 
 
+class HuaweiConnectivityException(HuaweiBaseException):
+    """Huawei connectivity exception."""
+
+
 class HuaweiFirmwareException(HuaweiBaseException):
     """Huawei load firmware exception."""

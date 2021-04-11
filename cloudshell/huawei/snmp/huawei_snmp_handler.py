@@ -5,12 +5,8 @@ from cloudshell.snmp.snmp_configurator import (
     EnableDisableSnmpFlowInterface,
 )
 
-from cloudshell.networking.huawei.flows.huawei_disable_snmp_flow import (
-    HuaweiDisableSnmpFlow,
-)
-from cloudshell.networking.huawei.flows.huawei_enable_snmp_flow import (
-    HuaweiEnableSnmpFlow,
-)
+from cloudshell.huawei.flows.huawei_disable_snmp_flow import HuaweiDisableSnmpFlow
+from cloudshell.huawei.flows.huawei_enable_snmp_flow import HuaweiEnableSnmpFlow
 
 
 class HuaweiEnableDisableSnmpFlow(EnableDisableSnmpFlowInterface):

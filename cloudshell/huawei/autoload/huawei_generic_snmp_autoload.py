@@ -4,7 +4,6 @@
 from cloudshell.snmp.autoload.generic_snmp_autoload import (
     GeneralAutoloadError,
     GenericSNMPAutoload,
-    SnmpEntityTable,
     log_autoload_details,
 )
 

@@ -9,7 +9,7 @@ from cloudshell.cli.service.session_pool_manager import SessionPoolManager
 from cloudshell.cli.session.ssh_session import SSHSession
 from cloudshell.cli.session.telnet_session import TelnetSession
 
-from cloudshell.networking.huawei.cli.huawei_command_modes import (
+from cloudshell.huawei.cli.huawei_command_modes import (
     ConfigCommandMode,
     EnableCommandMode,
 )
@@ -29,7 +29,8 @@ class HuaweiSSHSession(SSHSession):
     def _connect_actions(self, prompt, logger):
         """Open connection to device/create session."""
         action_map = {
-            r"The password needs to be changed. Change now\? \[Y\/N\]:": lambda session, logger: session.send_line(
+            r"The password needs to be changed. "
+            r"Change now\? \[Y\/N\]:": lambda session, logger: session.send_line(
                 "N", logger
             )
         }

@@ -27,7 +27,6 @@ class ConfigCommandMode(CommandMode):
 
     def __init__(self, resource_config):
         """Initialize Config command mode."""
-
         self.resource_config = resource_config
 
         super(ConfigCommandMode, self).__init__(
@@ -35,9 +34,9 @@ class ConfigCommandMode(CommandMode):
             enter_command=self.ENTER_COMMAND,
             exit_command=self.EXIT_COMMAND,
             enter_action_map={
-                r"Error: Incomplete command found at '\^' position.": lambda session, logger: session.send_line(
-                    "system-view immediately", logger
-                )
+                r"Error: Incomplete command found at '\^' position.":
+                    lambda session, logger:
+                    session.send_line("system-view immediately", logger)
             },
         )
 

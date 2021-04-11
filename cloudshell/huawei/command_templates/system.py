@@ -9,7 +9,8 @@ COMMIT = CommandTemplate("commit")
 UNDO = CommandTemplate("undo {command}")
 DISPLAY_VERSION = CommandTemplate("display version")
 DISPLAY_RUNNING = CommandTemplate(
-    "display current-configuration [interface {port_name}] [ | include boot{boot}] [ | include snmp-server community{snmp}]"
+    "display current-configuration [interface {port_name}] "
+    "[ | include boot{boot}] [ | include snmp-server community{snmp}]"
 )
 DISPLAY_STARTUP = CommandTemplate("display startup")
 REBOOT = CommandTemplate(

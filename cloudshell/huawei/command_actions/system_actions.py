@@ -7,7 +7,8 @@ from cloudshell.cli.command_template.command_template_executor import (
     CommandTemplateExecutor,
 )
 
-from cloudshell.networking.huawei.command_templates import system
+from cloudshell.huawei.command_templates import system
+from cloudshell.huawei.helpers.exceptions import HuaweiBaseException
 
 
 class SystemActions(object):
@@ -63,7 +64,9 @@ class SystemActions(object):
                     startup_config
                 )
             )
-            raise Exception("Can not determine startup configuration file location")
+            raise HuaweiBaseException(
+                "Can not determine startup configuration file location"
+            )
         else:
             return match.groupdict().get("startup")
 
@@ -73,9 +76,8 @@ class SystemActions(object):
         """Clean configuration on interface."""
         action_map.update(
             {
-                r"[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]": lambda session: session.send_line(
-                    "yes"
-                ),
+                r"[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]":
+                    lambda session: session.send_line("yes"),
                 r"[\[\(][Yy]/[Nn][\)\]]": lambda session: session.send_line("y"),
             }
         )
@@ -83,7 +85,9 @@ class SystemActions(object):
         for line in configuration.splitlines():
             line = line.strip()
             if re.search(
-                r"^port default vlan\s+|^port link-type\s+|^port trunk allow-pass vlan\s+",
+                r"^port default vlan\s+|"
+                r"^port link-type\s+|"
+                r"^port trunk allow-pass vlan\s+",
                 line,
             ):
                 if not re.search(r"^port trunk allow-pass vlan\s+", line):
@@ -98,7 +102,6 @@ class SystemActions(object):
 
     def reboot(self, action_map=None, error_map=None):
         """Reboot the system."""
-
         try:
             CommandTemplateExecutor(
                 cli_service=self._cli_service,
@@ -107,7 +110,7 @@ class SystemActions(object):
                 error_map=error_map,
                 expected_string="System is rebooting, please wait",
             ).execute_command()
-        except Exception as e:
+        except Exception:
             self._logger.info(
                 "Session type is '{}', closing session...".format(
                     self._cli_service.session.session_type
