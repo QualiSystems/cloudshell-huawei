@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from huawei.command_actions import SystemActions
-from huawei.command_actions.save_restore_actions import SaveRestoreActions
-from huawei.helpers.exceptions import HuaweiSaveRestoreException
+from cloudshell.huawei.command_actions.system_actions import SystemActions
+from cloudshell.huawei.command_actions.save_restore_actions import SaveRestoreActions
+from cloudshell.huawei.helpers.exceptions import HuaweiSaveRestoreException
 
 from cloudshell.shell.flows.configuration.basic_flow import AbstractConfigurationFlow
 from cloudshell.shell.flows.utils.networking_utils import UrlParser
