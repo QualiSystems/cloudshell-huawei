@@ -34,9 +34,9 @@ class ConfigCommandMode(CommandMode):
             enter_command=self.ENTER_COMMAND,
             exit_command=self.EXIT_COMMAND,
             enter_action_map={
-                r"Error: Incomplete command found at '\^' position.":
-                    lambda session, logger:
-                    session.send_line("system-view immediately", logger)
+                r"Error: Incomplete command found at '\^' position.": lambda session, logger: session.send_line(  # noqa: E501,E800
+                    "system-view immediately", logger
+                )
             },
         )
 

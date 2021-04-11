@@ -76,8 +76,9 @@ class SystemActions(object):
         """Clean configuration on interface."""
         action_map.update(
             {
-                r"[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]":
-                    lambda session: session.send_line("yes"),
+                r"[\[\(][Yy]es/[Nn]o[\)\]]|\[Continue\]|Continue?\[Y/N\]": lambda session: session.send_line(  # noqa: E501
+                    "yes"
+                ),
                 r"[\[\(][Yy]/[Nn][\)\]]": lambda session: session.send_line("y"),
             }
         )
