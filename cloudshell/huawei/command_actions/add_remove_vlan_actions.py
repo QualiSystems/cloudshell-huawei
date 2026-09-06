@@ -30,7 +30,7 @@ class AddRemoveVlanActions(object):
         ).execute_command(start_vlan=start_vlan, end_vlan=end_vlan)
 
     def set_vlan_to_interface(self, vlan, port_mode, qnq):
-        """  """
+        """ """
 
         if qnq:
             CommandTemplateExecutor(
@@ -52,7 +52,7 @@ class AddRemoveVlanActions(object):
             ).execute_command(vlan=vlan)
 
     def set_vlan_range_to_interface(self, start_vlan, end_vlan, port_mode):
-        """  """
+        """ """
 
         if port_mode == "trunk":
             CommandTemplateExecutor(
@@ -72,7 +72,7 @@ class AddRemoveVlanActions(object):
         ).execute_command()
 
     def activate_port_mode(self):
-        """  """
+        """ """
 
         CommandTemplateExecutor(
             self._cli_service, add_remove_vlan.START_PORT_MODE

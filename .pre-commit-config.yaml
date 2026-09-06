@@ -1,18 +1,16 @@
 repos:
-  - repo: https://github.com/timothycrosley/isort
-    rev: 5.6.4
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
     hooks:
       - id: isort
-        language_version: python3.7
         exclude: '/mibs'
-  - repo: https://github.com/python/black
-    rev: 20.8b1
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
     hooks:
       - id: black
-        language_version: python3.7
         exclude: '/mibs'
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
     hooks:
       - id: flake8
         additional_dependencies: [
@@ -22,5 +20,4 @@ repos:
           flake8-print,
           flake8-eradicate,
         ]
-        language_version: python3.7
         exclude: '/mibs'

@@ -4,6 +4,7 @@ from cloudshell.snmp.snmp_configurator import (
     EnableDisableSnmpConfigurator,
     EnableDisableSnmpFlowInterface,
 )
+from cloudshell.snmp.snmp_parameters import get_snmp_parameters_from_config
 
 from cloudshell.huawei.flows.huawei_disable_snmp_flow import HuaweiDisableSnmpFlow
 from cloudshell.huawei.flows.huawei_enable_snmp_flow import HuaweiEnableSnmpFlow
@@ -33,6 +34,10 @@ class HuaweiSnmpHandler(EnableDisableSnmpConfigurator):
     def __init__(self, resource_config, logger, cli_handler):
         self.cli_handler = cli_handler
         enable_disable_snmp_flow = HuaweiEnableDisableSnmpFlow(self.cli_handler, logger)
-        super(HuaweiSnmpHandler, self).__init__(
-            enable_disable_snmp_flow, resource_config, logger
+        super().__init__(
+            enable_disable_snmp_flow=enable_disable_snmp_flow,
+            snmp_parameters=get_snmp_parameters_from_config(resource_config),
+            enable_snmp=resource_config.enable_snmp,
+            disable_snmp=resource_config.disable_snmp,
+            logger=logger,
         )
