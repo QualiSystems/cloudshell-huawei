@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from cloudshell.shell.flows.firmware.basic_flow import AbstractFirmwareFlow
-from cloudshell.shell.flows.utils.networking_utils import UrlParser
+from cloudshell.shell.flows.utils.url import RemoteURL
 
 from cloudshell.huawei.command_actions.firmware_actions import FirmwareActions
 from cloudshell.huawei.command_actions.save_restore_actions import SaveRestoreActions
@@ -11,22 +11,22 @@ from cloudshell.huawei.helpers.exceptions import HuaweiFirmwareException
 
 
 class HuaweiLoadFirmwareFlow(AbstractFirmwareFlow):
-    FILE_TYPE = "flash"
+    FILE_SYSTEM = "flash"
 
-    def __init__(self, cli_handler, logger):
-        super(HuaweiLoadFirmwareFlow, self).__init__(logger)
+    def __init__(self, cli_handler, logger, resource_config):
+        super().__init__(logger, resource_config)
         self._cli_handler = cli_handler
 
-    def _load_firmware_flow(self, path, vrf_management_name, timeout):
+    def _load_firmware_flow(self, firmware_url, vrf_management_name, timeout):
         """Load a firmware onto the device.
 
-        :param path: The path to the firmware file, including the firmware file name
+        :param firmware_url: The URL of the firmware file, including the firmware
+            file name
         :param vrf_management_name: Virtual Routing and Forwarding Name
         :param timeout:
         :return:
         """
-        url = UrlParser().parse_url(path)
-        firmware_file_name = url.get(UrlParser.FILENAME)
+        firmware_file_name = firmware_url.filename
         if not firmware_file_name:
             raise HuaweiFirmwareException("Unable to find firmware file")
 
@@ -38,30 +38,29 @@ class HuaweiLoadFirmwareFlow(AbstractFirmwareFlow):
             firmware_actions = FirmwareActions(config_session, self._logger)
             system_actions = SystemActions(config_session, self._logger)
 
-            scheme = url.get(UrlParser.SCHEME).lower()
-            if not scheme:
-                dst_file = "{file_system}:/{file_path}".format(
-                    file_system=self.FILE_SYSTEM, file_path=path.lstrip("/")
-                )
-            elif scheme == self.FILE_SYSTEM:
-                dst_file = path
-            elif scheme in ["ftp", "tftp"]:
+            if isinstance(firmware_url, RemoteURL):
+                scheme = firmware_url.scheme.lower()
+                if scheme not in ["ftp", "tftp"]:
+                    raise HuaweiFirmwareException(
+                        "Unsupported protocol. "
+                        "Updating firmware possible from tftp, "
+                        "ftp or local storage({}) only".format(self.FILE_SYSTEM)
+                    )
                 dst_file = "{file_system}:/{file_name}".format(
                     file_system=self.FILE_SYSTEM, file_name=firmware_file_name
                 )
                 config_actions.get_file(
-                    server_address=url.get(UrlParser.HOSTNAME),
-                    src_file="{path}/{file}".format(
-                        path=url.get(UrlParser.PATH), file=firmware_file_name
-                    ),
+                    server_address=firmware_url.host,
+                    src_file=firmware_url.path.lstrip("/"),
                     dst_file=dst_file,
                 )
             else:
-                raise HuaweiFirmwareException(
-                    "Unsupported protocol. "
-                    "Updating firmware possible from tftp, "
-                    "ftp or local storage({}) only".format(self.FILE_SYSTEM)
-                )
+                dst_file = firmware_url.url
+                if not firmware_url.scheme:
+                    dst_file = "{file_system}:/{file_path}".format(
+                        file_system=self.FILE_SYSTEM,
+                        file_path=firmware_url.path.lstrip("/"),
+                    )
 
             firmware_actions.update_firmware(firmware_file=dst_file)
             system_actions.reboot()

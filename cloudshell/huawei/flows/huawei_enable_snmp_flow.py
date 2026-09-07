@@ -56,21 +56,21 @@ class HuaweiEnableSnmpFlow(object):
                 else:
                     raise HuaweiSNMPException("Wrong SNMPv3 parameters")
 
-                auth_protocol = self.ENCRYPTION.get(snmp_parameters.auth_protocol)
+                auth_protocol = self.ENCRYPTION.get(snmp_parameters.snmp_auth_protocol)
                 if not auth_protocol:
                     raise HuaweiSNMPException(
                         "Wrong authentication protocol ({}) provided".format(
-                            snmp_parameters.auth_protocol
+                            snmp_parameters.snmp_auth_protocol
                         )
                     )
                 private_key_protocol = self.ENCRYPTION.get(
-                    snmp_parameters.private_key_protocol
+                    snmp_parameters.snmp_private_key_protocol
                 )
 
                 if not private_key_protocol:
                     raise HuaweiSNMPException(
                         "Wrong privacy key protocol ({}) provided".format(
-                            snmp_parameters.private_key_protocol
+                            snmp_parameters.snmp_private_key_protocol
                         )
                     )
 
